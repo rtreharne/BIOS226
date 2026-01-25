@@ -1,0 +1,105 @@
+Assignment: BIOS226 - Topic 1 - Intro and R
+Slug: bios226-topic-1-intro-and-r-ee8f
+Attempt ID: 73
+Started: 2026-01-20T19:58:35.509326+00:00
+Ended: 2026-01-20T20:08:50.658823+00:00
+Duration seconds: 600
+
+Transcript:
+Student: ok
+AI: Can you explain why R is chosen as the tool for data analysis in BIOS226 and what you are expected to achieve by the end of the first workshop?
+Student: R is used for processing biological data (from all related fields). The language R has been developed by biologists expressly for this purpose. By the end of this workshop I am expected to create an R project, run a script, create a unique dataset, inspect the data and summarize, visualise and perform a statistial test (ANOVA).
+AI: What is the purpose of creating an R Project in RStudio, and how does it contribute to reproducibility?
+Student: It keeps all my files together and avoids any errors associated with incorrect paths/working directories.
+AI: How does the assignment operator `<-` work in R, and what does the line `data <- read.csv("example_bio_data.csv")` do specifically?
+Student: the <- operator saves the object on the right the the variable called `data` on the left.
+AI: Good. Could you describe what the functions `head()`, `str()`, and `summary()` reveal about a dataset once it is loaded into R?
+Student: head() prints the first 6 rows of a dataframe. str() prints the whole data frame. summary() tells us basic information about the size of the dataframe and the types of data it contains.
+AI: Almost right. str() shows the structure including data types and dimensions, not the whole data frame content. Can you explain how you would use the `tapply()` function to summarize growth rates by treatment condition?
+Student: summary <- tapply(data$growth_rate, data$growth_rate, summary)
+AI: Your code has a small mistake: the grouping variable should be `data$condition`, not `data$growth_rate`. Can you correct the code and explain what this corrected `tapply()` call does?
+Student: summary <- tapply(data$growth_rate, data$condition, summary)
+AI: Correct. This code applies the summary function to the growth_rate values grouped by each condition, producing summary statistics like min, median, and max for each treatment group. Why is it useful to save this grouped summary as a CSV file?
+Student: it's useful to save as a .csv file so that I can save it and import it into Excel for formatting for a report.
+AI: Exactly. Moving on, how do you select a single column from a data frame in R, and why is this important for statistical analysis?
+Student: I select a column using the `$` operator. For example: growth_rate_values <- data$growth_rate. This is important beause I may wish to isolate values in column for pre-analysis, e.g. to perform a normatilty test (shapiro(growth_rate_values)) to check assumptions of subsequent statistical tests.
+AI: Well explained. Now, can you describe the difference between the response variable and independent variables in the context of the dataset used in this workshop?
+Student: you've asked me this already but in this case the line uses the read.csv function to read the data to a data frame and then stores it in a variable called data.
+AI: Thank you for your response. To clarify, could you now explain what the response variable and independent variables represent in the biological dataset used here?
+Student: in this case the independent variable is the temperature and the response variable is growth_rate. The response_variable is what we measure.
+
+MCQ results:
+Score: 10/10
+Q1: Why is R used in BIOS226?
+  A. To manage laboratory equipment
+  B. To write complex software applications
+  C. To load, explore, visualize, and analyze biological data
+  D. To create web pages
+  Student answer: C
+  Correct answer: C
+Q2: What is the purpose of creating an R Project?
+  A. To speed up R computations
+  B. To keep files organized and improve reproducibility
+  C. To install R packages
+  D. To automatically write reports
+  Student answer: B
+  Correct answer: B
+Q3: What is the difference between the Console and a Script in RStudio?
+  A. Scripts are only for comments
+  B. Both are identical in function
+  C. Console runs commands immediately; scripts save and rerun code
+  D. Console saves code; scripts run commands immediately
+  Student answer: C
+  Correct answer: C
+Q4: What does the assignment operator '<-' do in R?
+  A. Deletes a variable
+  B. Compares two values
+  C. Stores the result on the right into the variable on the left
+  D. Runs a function
+  Student answer: C
+  Correct answer: C
+Q5: Which function reads a CSV file into R?
+  A. read.table()
+  B. load.csv()
+  C. import.csv()
+  D. read.csv()
+  Student answer: D
+  Correct answer: D
+Q6: How do you access a single column named 'growth_rate' from a data frame 'data'?
+  A. data(growth_rate)
+  B. data[growth_rate,]
+  C. data[growth_rate]
+  D. data$growth_rate
+  Student answer: D
+  Correct answer: D
+Q7: What type of plot is best for comparing growth rate across treatment groups?
+  A. Histogram
+  B. Scatterplot
+  C. Boxplot
+  D. Line graph
+  Student answer: C
+  Correct answer: C
+Q8: What question does ANOVA test answer?
+  A. Whether variance is equal within groups
+  B. Whether mean response differs between groups
+  C. Whether data is normally distributed
+  D. Whether variables are correlated
+  Student answer: B
+  Correct answer: B
+Q9: What does a very small p-value in ANOVA indicate?
+  A. No difference between groups
+  B. Strong evidence that group means differ
+  C. Data is not reproducible
+  D. Model assumptions are violated
+  Student answer: B
+  Correct answer: B
+Q10: Why is data visualization important before statistical tests?
+  A. To make data look better
+  B. To replace statistical tests
+  C. To understand patterns and identify outliers
+  D. To increase sample size
+  Student answer: C
+  Correct answer: C
+
+AI feedback:
+You demonstrated a good grasp of why R is used in BIOS226 and the importance of R Projects for reproducibility. You correctly explained the assignment operator and the use of tapply() after correcting the grouping variable. However, your explanation of str() was incomplete—it shows structure and data types, not the entire dataset—and you initially confused the response and independent variables. Next time, focus on clearly distinguishing variable roles and double-check function purposes to avoid minor inaccuracies.

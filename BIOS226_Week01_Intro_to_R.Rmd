@@ -1,0 +1,714 @@
+---
+output:
+  html_document:
+    df_print: paged
+---
+
+# BIOS226 — Topic 1
+## Introduction to R
+*R. Treharne*
+
+## 1. Why are we using R in BIOS226?
+
+We will be using lots of different tools in this module. But let's start with R.
+
+R is one of the most widely used tools in bioinformatics and computational biology.  
+In this module, you will use R to:
+
+- Load and explore biological datasets  
+- Visualise patterns and variation  
+- Perform statistical analyses  
+- Build and evaluate biological models  
+
+You are **not expected to be an expert programmer**.  
+You *are* expected to develop confidence working with data in a reproducible way.
+
+By the end of this workshop, you should be able to:
+
+1. **Install and run R and RStudio** on your own computer and confirm that they are working correctly.  
+2. **Create and use an R Project** to organise files and manage data reproducibly.  
+3. **Write and run a basic R script**, understanding the difference between the console and a script file.  
+4. **Load a simple biological dataset into R** and inspect its structure using `head()`, `str()`, and `summary()`.  
+5. **Extract and summarise data from a dataset**, including calculating basic summary statistics.  
+6. **Produce a basic plot** to visualise relationships in biological data.  
+7. **Run a simple statistical model (ANOVA)** and explain, at a conceptual level, what question it is addressing.  
+8. **Explain why R will be used throughout BIOS226** and how the skills from this workshop will support later topics in the module.
+
+These objectives map directly to the **Week 1 portfolio activity** and form the foundation for all subsequent workshops.
+
+---
+
+## 2. Installing R and RStudio
+
+### What is R?
+- R is the **language** used to analyse data.
+
+### What is RStudio?
+- RStudio is the **interface** that makes R easier to use.
+
+You need **both**.
+
+### Installation instructions
+
+#### Windows
+1. Install R from: https://cran.r-project.org  
+2. Install RStudio from: https://posit.co/download/rstudio-desktop/
+
+#### macOS
+1. Install R from: https://cran.r-project.org  
+2. Install RStudio from: https://posit.co/download/rstudio-desktop/
+
+If RStudio opens and you see a **Console** window, installation was successful.
+
+---
+
+## 3. Creating an R Project (important)
+
+We will always work inside **R Projects**.
+
+### Why use projects?
+- Keeps files organised  
+- Avoids broken file paths  
+- Improves reproducibility  
+
+### Create a project
+1. `File` → `New Project`
+2. `New Directory`
+3. `New Project`
+4. Name it `BIOS226_Week01`
+5. Click **Create Project**
+
+All files for this workshop should live inside this folder.
+
+---
+
+
+
+## 4. What is a script?
+
+An R script is a plain text file that contains a sequence of R commands.  
+Unlike typing commands directly into the Console, a script can be saved, re-run, shared, and submitted as part of your portfolio.
+
+In BIOS226, scripts are how we make our work reproducible.
+
+---
+
+### Console vs Script
+
+**Console**  
+Commands typed here run immediately.  
+This is useful for quick checks or experimenting.  
+Commands typed into the Console are not saved automatically.
+
+**Script**  
+Commands are written in a file.  
+Scripts can be run again later.  
+Scripts are the main way you will work with and submit code in BIOS226.
+
+---
+
+### Creating your own script
+
+Create a new script:
+
+File → New File → R Script
+
+Add the following at the top of the file:
+
+```r
+# BIOS226 Week 1  
+# Introduction to R  
+# Your Name
+```
+
+Save the file as:
+
+`week01_intro_to_r.R`
+
+We'll be coming back to this script shortly. But first ...
+
+---
+
+### Running the example data-generation script
+
+I have pre-prepared an R script for you called
+
+[`generate_example_data.R`](https://canvas.liverpool.ac.uk/courses/90784/files/13498583/download?download_frd=1)
+
+Download it to you project **NOW!**. Make sure you don't change the filename.
+
+This script will:
+
+- Generate a small, simulated biological dataset  
+- Use a student ID to ensure the data are reproducible (and unique for each of you)
+
+You do not need to understand the contents of this script.  
+Think of it as a tool that prepares the data you will use in the rest of this week's workshops.
+
+---
+
+### Important: student ID for this resource
+
+For this workshop resource, use the following student ID:
+
+`123456789`
+
+Using the same ID ensures that your dataset matches the examples shown later in this resource, so you can reproduce the figures and results demonstrated.
+
+You will use your own student ID when completing the portfolio tasks for this workshop.
+
+---
+
+### Run the script in RStudio
+
+- Open the file generate_example_data.R in RStudio.  
+- Click Source (top right of the script window).  
+
+When prompted, enter:
+
+`123456789`
+
+If successful, the file `example_bio_data.csv` will appear in your project folder. Does it?
+
+
+---
+
+### What happens next?
+
+Now that `example_bio_data.csv` has been created in your project, you will proceed toload the data into R, explore its structure, visualise relationships in the data, and use it for a simple statistical analysis. How exciting!
+
+
+---
+
+## 5. Loading a dataset
+
+In this section, you will load the dataset that you **have already generated yourself** using the script:
+
+`generate_example_data.R`
+
+If you ran that script successfully, a file called:
+
+`example_bio_data.csv`
+
+will already exist inside your **project folder**.  
+You do **not** need to download anything from Canvas.
+
+You should now return to work in your new, blank script file:
+
+`week01_intro_to_r.R`
+
+Open this file in RStudio (It's probably still open). All of the code below should be added to this script (not typed directly into the Console).
+
+---
+
+### Step 1: Reading the data into R
+
+Add the following line to your script:
+
+```{r}
+data <- read.csv("example_bio_data.csv")
+```
+
+---
+
+### What is happening here?
+
+- `read.csv()` is a **function** that reads data from a CSV file.
+- `"example_bio_data.csv"` is the name of the file you want R to read.
+- `data` is a **variable**.
+
+A variable is a name that refers to an object stored in memory.  
+After this line runs, the variable `data` will refer to the entire dataset.
+
+You can choose different variable names, but `data` is short, clear, and commonly used.
+
+---
+
+### What does `<-` mean?
+
+The symbol `<-` is the **assignment operator** in R.
+
+It means:
+
+Take the result on the right-hand side and store it in the variable on the left-hand side.
+
+So this line:
+
+```{r}
+data <- read.csv("example_bio_data.csv")
+```
+
+
+should be understood to:
+
+Read the file called `example_bio_data.csv` and store it in a variable called data.
+
+You will see `<-` used constantly in R scripts throughout this module.
+
+To run the line, click anywhere on the line and click the `Run` button in the top right
+
+corner of your script window.
+
+If all goes well, you should see an item called `data` in your *enrivonment* window in the top-right corner of your R-Studio. 
+
+Click it! See what happens.
+---
+
+### Step 2: Inspecting the dataset
+
+Once the data has been loaded, add and run the following lines to your script:
+
+```{r}
+head(data)  
+str(data)  
+summary(data)
+```
+
+Run the script.
+
+---
+
+### What should you expect to see?
+
+#### head(data)
+
+This displays the **first six rows** of the dataset.
+
+Use this to:
+- Confirm that the data loaded correctly
+- See the column names
+- Get an initial sense of what each column represents
+
+You should see columns such as:
+- sample_id  
+- condition  
+- temperature  
+- growth_rate  
+
+---
+
+#### str(data)
+
+This shows the **structure** of the dataset.
+
+It tells you:
+- How many rows and columns the dataset has
+- The data type of each column (numeric, character, factor, etc.)
+
+This is especially important in bioinformatics, because many analyses require variables to be the correct type.
+
+For example:
+- `condition` should be a factor (although right now it is `Char`)
+- `temperature` and `growth_rate` should be numeric
+
+---
+
+#### summary(data)
+
+This produces summary statistics for each column.
+
+For numeric variables, you will see:
+- Minimum and maximum values
+- Median and mean
+- Quart
+
+
+---
+
+For categorical variables, you will see:
+- Counts for each group
+
+This gives you a quick overview of the entire dataset.
+
+---
+
+### Step 3: Summary statistics by group
+
+In biology, we often want to summarise measurements **by experimental group**.
+
+In this case, our data is organised into several treatment `conditions`:
+
+- Low_Treatment
+- Medium_Treatment
+- High_Treatment
+
+To generate summary statistics for growth rate separately for each condition, add and run the following line to your script:
+
+```{r}
+tapply(data$growth_rate, data$condition, summary)
+```
+
+
+---
+
+### What does this do?
+
+- `data$growth_rate` selects the growth rate column
+- `data$condition` defines the grouping variable
+- `summary` is applied separately to each group
+
+The output is a grouped table of summary statistics, allowing you to compare conditions directly.
+
+This type of grouped summary is a foundation for:
+- Data visualisation
+- Statistical testing
+- Biological interpretation
+
+### What if you want to save the grouped summary as a CSV file?
+
+Sometimes you may want to save results to a file so they can be reused later, included in a report, or shared with others.
+
+First, store the grouped summary in a variable:
+
+```{r}
+grouped_summary <- tapply(data$growth_rate, data$condition, summary)
+```
+
+
+The object created by `tapply()` is a list. To save it as a CSV file, we first convert it into a data frame:
+
+```{r}
+grouped_summary_df <- do.call(rbind, grouped_summary)
+```
+
+
+
+Now write it to a CSV file:
+
+```{r}
+write.csv(grouped_summary_df, "grouped_growth_rate_summary.csv")
+```
+
+
+
+This will create a file called:
+
+`grouped_growth_rate_summary.csv`
+
+in your project folder. This is great! It means that you can open the file up in Excel and then copy and paste into a report if you want. 
+
+## 6. Working with columns
+
+Once a dataset has been loaded into R, we often want to work with **individual columns** rather than the whole table.
+
+The object `data` is a **data frame**, meaning:
+- each column is a variable
+- each row is an observation
+
+---
+
+### Selecting a column
+
+To access a single column, use the `$` operator:
+
+```r
+data$growth_rate
+```
+
+This tells R to:
+
+- look inside the object called data
+- extract the column named growth_rate
+
+The result is a numeric vector containing all growth rate values.
+
+Most statistical functions in R work on vectors, not entire data frames, which is why this step is important.
+
+### Calculating a mean
+
+To calculate the average growth rate across all samples:
+
+```{r}
+mean(data$growth_rate)
+```
+
+What happens here:
+
+- data$growth_rate selects the values in the column `growth_rate`
+- mean() calculates the arithmetic average
+- R returns a single number
+
+This value represents the mean growth rate across all conditions combined.
+
+### Storing results (optional)
+
+If you want to reuse the result later, you can store it in a variable:
+
+```{r}
+overall_mean_growth <- mean(data$growth_rate)
+```
+
+Typing the variable name will display the stored value. Try it!
+
+
+## 7. Basic visualisation
+
+Visualisation is one of the most important steps in data analysis.  
+Before running statistical tests or models, we should **look at the data**.
+
+Plots help us to:
+
+- understand patterns and trends
+- compare experimental groups
+- identify variability and potential outliers
+
+---
+
+### Response variables and independent variables
+
+In most biological experiments, we distinguish between two types of variables:
+
+- **Response variable**  
+  This is the outcome you measure.  
+  In this dataset, the response variable is:
+
+  `growth_rate`
+
+- **Independent variable**  
+  This is a variable that may influence the response.  
+  In this dataset, independent variables include:
+
+  `condition`
+  `temperature`  
+
+When we make plots, we usually place:
+
+- the **independent variable** on the x-axis
+- the **response variable** on the y-axis
+
+---
+
+### Plot 1: Grouped boxplot (growth rate by treatment)
+
+A boxplot is useful for comparing a response variable across discrete groups.
+
+To create a boxplot of growth rate for each treatment condition, add and run:
+
+```{r}
+boxplot(growth_rate ~ condition,
+        data = data,
+        xlab = "Treatment condition",
+        ylab = "Growth rate",
+        main = "Growth rate by treatment condition")
+```
+
+What this plot shows:
+
+- one box per treatment group
+- the median growth rate in each group
+- the spread and variability within each group
+- potential outliers
+
+This plot is especially useful when preparing for statistical tests such as ANOVA (See section 8).
+
+---
+
+### Plot 2: Scatterplot (temperature vs growth rate)
+
+A scatterplot is used to explore the relationship between two **continuous variables**.
+
+To plot temperature against growth rate, add and run:
+
+```{r}
+plot(data$temperature,
+     data$growth_rate,
+     xlab = "Temperature (°C)",
+     ylab = "Growth rate",
+     main = "Growth rate vs temperature")
+```
+
+In this plot:
+
+- temperature is the independent variable (x-axis)
+- growth rate is the response variable (y-axis)
+- each point represents a single sample
+
+Scatterplots help you assess whether changes in an independent variable are associated with changes in the response variable.
+
+---
+
+### Why these plots matter
+
+Together, these two plots allow you to:
+
+- compare growth rate across treatment groups
+- explore how growth rate varies with temperature
+- develop intuition before formal statistical analysis
+
+Visualisation is not optional — it is a core part of good biological data analysis.
+
+## 8. A first statistical model: ANOVA
+
+In this section, you will run your **first formal statistical model** in BIOS226.
+
+The goal here is **not** to master statistics.  
+It is to understand **what question the model is asking**, **what the output means**, and **why we use it**.
+
+---
+
+### What is ANOVA?
+
+ANOVA stands for **Analysis of Variance**.
+
+It is used when you want to test whether the **mean value of a response variable** differs between **two or more groups**.
+
+In our experiment:
+
+- The **response variable** is `growth_rate`
+- The **grouping variable** is `condition`
+- There are multiple treatment groups
+
+ANOVA answers the question:
+
+Are the differences in mean growth rate between treatment groups larger than we would expect by chance alone?
+
+---
+
+### Running the ANOVA
+
+Add the following lines to your script and run them:
+
+```{r}
+anova_model <- aov(growth_rate ~ condition, data = data)
+summary(anova_model)
+```
+
+---
+
+### What does this code do?
+
+- `aov()` fits an ANOVA model
+- `growth_rate ~ condition` specifies the model structure
+- `data = data` tells R where to find the variables
+- `anova_model` stores the fitted model
+- `summary(anova_model)` displays the results
+
+---
+
+###Interpreting the output
+
+Let's take a look at the ANOVA result output above:
+
+- Each row represents a source of variation
+
+- Each column contains a different piece of statistical information
+
+The most important row for interpretation is the one labelled:
+
+`condition`
+
+Understanding the columns
+
+- **Df (Degrees of Freedom)**
+  This reflects how many independent pieces of information are used to estimate variation.
+
+  For condition, this is the number of groups minus one
+
+  For Residuals, this reflects the remaining unexplained variation
+
+- **Sum Sq (Sum of Squares)**
+  This measures how much variation is associated with each source.
+
+  The larger the value, the more variation is attributed to that source
+
+- **Mean Sq (Mean Square)**
+  This is the sum of squares divided by the degrees of freedom.
+
+  It represents the average variation per degree of freedom
+
+- **F value**
+  This is the test statistic for ANOVA.
+
+  It compares the variation between groups to the variation within groups
+
+  Large F values indicate that group means differ more than would be expected by chance
+
+- **Pr(>F) (p-value)**
+  This is the probability of observing an F value this large if there were actually no differences between group means.
+
+  Interpreting this specific result
+
+In this output:
+
+- The F value for condition is very large
+
+- The p-value is reported as < 2e-16, which is extremely small
+
+This provides very strong evidence that mean growth rate differs between at least some of the treatment groups.
+
+The *** symbols are significance codes added by R to indicate very small p-values.
+They are a visual aid only and do not change the interpretation.
+
+### What if the ANOVA is significant?
+
+If the ANOVA result is statistically significant, the next step is to perform **post-hoc tests**.
+
+Post-hoc tests allow you to:
+
+- Compare groups pairwise
+- Identify which specific treatments differ from each other
+
+You will encounter these ideas in more detail elsewhere in your degree.
+
+For now, remember:
+ANOVA is a starting point, not the end of the analysis.
+
+---
+
+### What about assumptions?
+
+Like all statistical tests, ANOVA relies on assumptions, including:
+
+- Independence of observations
+- Normally distributed residuals
+- Similar variance across groups
+
+You will cover these assumptions formally in **BIOS203**.
+
+For this workshop:
+
+- Do not worry about checking assumptions yet
+- Focus on understanding what the model is doing conceptually
+
+---
+
+### Why are we doing this now?
+
+ANOVA introduces several ideas that will appear repeatedly in BIOS226:
+
+- Modelling biological data
+- Comparing experimental groups
+- Interpreting statistical output
+- Deciding what to do next in an analysis
+
+Later in the module, these same ideas will extend to:
+
+- More complex models
+- High-dimensional data
+- Supervised learning and model evaluation
+
+This is your first step into statistical modelling.
+
+## Summary
+
+After working through this resource, you should now be able to:
+
+- Explain why R is used in bioinformatics and computational biology
+
+- Work within an R Project and use scripts rather than the Console
+
+- Generate a reproducible dataset using a script
+
+- Load data into R and inspect its structure
+
+- Work with individual variables (columns)
+
+- Visualise data using appropriate plots
+
+- Run and interpret a simple statistical model (ANOVA) at a conceptual level
+
+These skills form the foundation for all later topics in the module.
+
+## What to do next
+
+(To be completed)
