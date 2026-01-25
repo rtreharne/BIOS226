@@ -1,9 +1,10 @@
 ---
 marp: true
-title: "BIOS226 Week 1 - Welcome"
+title: "BIOS226 Computational Biology and Bioinformatics"
 theme: default
 paginate: true
 size: 16:9
+footer: "R.Treharne@liverpool"
 ---
 
 <style>
@@ -36,6 +37,14 @@ section:not([data-marpit-pagination])::after {
   display: none;
 }
 
+section footer {
+  position: absolute;
+  bottom: 16px;
+  left: 24px;
+  font-size: 0.6em;
+  color: #555;
+}
+
 .content img {
   width: 50%;
   height: auto;
@@ -61,11 +70,12 @@ section.table td {
 
 .disclaimer {
   position: absolute;
-  bottom: 16px;
+  bottom: 34px;
   left: 24px;
   font-size: 0.6em;
   color: #555;
 }
+
 
 .title-logo {
   --logo-crop-left: 20px;
@@ -77,9 +87,9 @@ section.table td {
 </style>
 
 <!-- _class: title -->
-<img src="img/uol_logo.png" class="title-logo" alt="University of Lincoln logo">
+<img src="img/uol_logo.png" class="title-logo" alt="University of Liverpool logo">
 
-# BIOS226 Computational Biology
+# BIOS226 Computational Biology and Bioinformatics
 ## Week 1 - Welcome and Module Overview
 
 Dr. Robert Treharne
@@ -96,6 +106,22 @@ Dr. Robert Treharne
 Open by welcoming students and framing the module as skills-focused. Emphasize that
 they will learn to make reasoned decisions, not just follow recipes.
 -->
+
+---
+
+# Learning Objectives
+<style scoped>
+ul {
+  font-size: 0.85em;
+}
+</style>
+By completing this module and its assessments, you should be able to:
+- Explain how genomics, transcriptomics, or proteomics data are generated and what biological questions they can address
+- Prepare and quality-check real biological datasets using appropriate preprocessing steps
+- Select and justify suitable analytical approaches for a given biological question
+- Create and interpret clear, informative visualisations of high-dimensional biological data
+- Interpret results in a biological context, recognising assumptions and limitations
+- Communicate your analysis clearly and professionally
 
 ---
 
