@@ -689,6 +689,59 @@ Later in the module, these same ideas will extend to:
 
 This is your first step into statistical modelling.
 
+## 9. Getting Ready for Week 2: Installing and loading R packages
+
+Well done on completing this week's workshop. You should now be back up to speed with your RStudio environment.
+
+There's one last thing that I want to discuss and that is R packages.
+
+R packages extend what R can do and typically
+You only need to **install** a package once per computer, but you must **load** it every time you start R.
+
+⚠️ **Important:**  
+If you change computers or reinstall R, you will need to install packages again.
+
+---
+
+### Installing Biostrings (Bioconductor)
+
+**Biostrings** is a bioinformatics package from **Bioconductor**, a specialised collection of R packages for analysing biological data such as DNA, RNA, and protein sequences.
+Biostrings provides tools for storing, manipulating, and analysing biological sequences in a way that is efficient and biologically meaningful.
+
+You will use Biostrings in next week’s workshop to work directly with sequence data, so we will install it now to make sure everyone’s system is ready.
+
+Add the following code to your script and run it line by line:
+
+```{r eval=TRUE, message=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+BiocManager::install("Biostrings")
+```
+
+This step may take a few minutes and will generate a lot of Console output — this is normal.
+
+---
+
+### Loading the package
+
+Once installed, load the package using:
+
+```{r eval=TRUE, message=FALSE}
+library(Biostrings)
+```
+
+If this runs without errors, Biostrings is ready to use. If you get errors then don't panic, we can help you fix during the workshop.
+
+You must include `library(Biostrings)` near the top of your script whenever you want to use the package.
+
+Try adding and running the following line to your script. Are you able to reproduce the output?
+
+```{r}
+alphabetFrequency(DNAString("ACGTACGT"))
+```
+
 ## Summary
 
 After working through this resource, you should now be able to:
@@ -707,8 +760,7 @@ After working through this resource, you should now be able to:
 
 - Run and interpret a simple statistical model (ANOVA) at a conceptual level
 
-These skills form the foundation for all later topics in the module.
+- Install Biostring and run a simple script that uses the package.
 
-## What to do next
 
-(To be completed)
+

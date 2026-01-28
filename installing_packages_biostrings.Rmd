@@ -1,0 +1,39 @@
+## Installing and loading R packages
+
+R packages extend what R can do.  
+You only need to **install** a package once per computer, but you must **load** it every time you start R.
+
+⚠️ **Important:**  
+If you change computers or reinstall R, you will need to install packages again.
+
+---
+
+### Installing Biostrings (Bioconductor)
+
+Biostrings is a bioinformatics package available via **Bioconductor**.
+
+Add the following code to your script and run it line by line:
+
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+BiocManager::install("Biostrings")
+```
+
+This step may take a few minutes and will generate a lot of Console output — this is normal.
+
+---
+
+### Loading the package
+
+Once installed, load the package using:
+
+```r
+library(Biostrings)
+```
+
+If this runs without errors, Biostrings is ready to use.
+
+You must include `library(Biostrings)` near the top of your script whenever you want to use the package.
