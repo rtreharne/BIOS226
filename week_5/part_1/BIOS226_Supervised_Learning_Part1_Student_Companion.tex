@@ -1,0 +1,255 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\section{BIOS226 - Topic 5 - Supervised Learning (Part 1)}
+
+\subsection{Student Companion Guide}
+
+\subsubsection{Foundations for Biological Model Evaluation}
+
+This companion follows the Part 1 lecture titles and explains each idea
+in plain language. Use it alongside the slides to build confidence
+before the Part 2 pipeline session.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{From Exploration to Prediction}
+
+In exploratory analysis, we ask what structure is in the data (for
+example PCA and clustering). In supervised learning, we ask a different
+question: can we predict an outcome for a new patient from measured
+features?
+
+\begin{itemize}
+\tightlist
+\item
+  Exploration: pattern finding without outcome labels.
+\item
+  Prediction: learning from labelled examples to support decisions.
+\end{itemize}
+
+In breast cancer, this move from description to prediction has had
+direct treatment impact (Paik et al., 2004; Sparano et al., 2018).
+
+\subsection{Aside: Oncotype DX in Plain Language}
+
+Oncotype DX is a lab test that measures expression of a small group of
+genes in a breast tumour sample.
+
+\begin{itemize}
+\tightlist
+\item
+  It gives a recurrence score to estimate how likely the cancer is to
+  return.
+\item
+  Clinicians use that score, with other clinical information, to discuss
+  whether chemotherapy is likely to help.
+\item
+  For many patients, this supports avoiding chemotherapy when expected
+  benefit is low.
+\end{itemize}
+
+The evidence base developed in stages: early validation work (Paik et
+al., 2004), then large prospective studies refining who benefits from
+chemotherapy (Sparano et al., 2018; Kalinsky et al., 2021).
+
+At global scale, the test has been used in more than 2 million patients
+across over 100 countries over about 22 years, according to company
+reporting, with an estimated 1.6 million people avoiding potentially
+unnecessary chemotherapy (Exact Sciences, 2026).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Unsupervised vs Supervised}
+
+Unsupervised methods group samples by similarity. Supervised methods
+learn relationships between features and known outcomes.
+
+This distinction matters in cancer research: molecular classes can
+change how disease is defined and treated (Perou et al., 2000; Hoadley
+et al., 2018).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{What Are X and Y?}
+
+Supervised learning uses:
+
+\begin{itemize}
+\tightlist
+\item
+  \(X\): input features (for example SNPs, gene expression, clinical
+  variables).
+\item
+  \(Y\): target outcome (for example disease class, risk, or response).
+\end{itemize}
+
+Polygenic risk scores are a good example: many small SNP effects can add
+up to meaningful risk differences (Khera et al., 2018).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Classification vs Regression}
+
+\begin{itemize}
+\tightlist
+\item
+  Classification predicts categories (for example subtype A vs subtype
+  B).
+\item
+  Regression predicts numeric values (for example a response score).
+\end{itemize}
+
+In practice, teams often model probabilities and then choose thresholds
+for clinical decision-making.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{What Is a Model?}
+
+A model is a mathematical mapping from \(X\) to \(Y\). During training,
+it learns patterns from observed data. During validation, we test whether
+those patterns generalise to unseen data.
+
+The key point for biology: a useful model is not just accurate on one
+dataset. It must also be robust across cohorts and measurement settings.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{The High-Dimensional Problem (p >> n)}
+
+In many biological studies, features (\(p\)) greatly outnumber samples
+(\(n\)). This increases the risk of overfitting.
+
+\begin{itemize}
+\tightlist
+\item
+  The model can learn noise instead of true biology.
+\item
+  Internal performance may look strong but fail in external data.
+\item
+  Feature signatures may not replicate.
+\end{itemize}
+
+That is why careful validation and leakage control are central to good
+practice.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Why Biology Is Harder}
+
+Biological datasets often include technical variation, batch effects,
+small sample sizes, and real biological heterogeneity.
+
+So model quality depends on study design and evaluation discipline, not
+just algorithm choice.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Key Take-Home Messages}
+
+\begin{itemize}
+\tightlist
+\item
+  Supervised learning supports decisions, not just predictions.
+\item
+  Always separate training logic from final testing logic.
+\item
+  In biology, validation design is as important as model selection.
+\item
+  Oncotype DX is a concrete example of supervised learning affecting care
+  at global scale.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{References}
+
+\begin{itemize}
+\tightlist
+\item
+  Hoadley, K.A., et al. (2018) 'Cell-of-origin patterns dominate the
+  molecular classification of 10,000 tumours from 33 types of cancer',
+  \emph{Cell}, 173(2), pp. 291--304.e6.
+\item
+  Kalinsky, K., et al. (2021) '21-Gene assay to inform chemotherapy
+  benefit in node-positive breast cancer', \emph{New England Journal of
+  Medicine}, 385(25), pp. 2336--2347.
+\item
+  Khera, A.V., et al. (2018) 'Genome-wide polygenic scores for common
+  diseases identify individuals with risk equivalent to monogenic
+  mutations', \emph{Nature Genetics}, 50(9), pp. 1219--1224.
+\item
+  Paik, S., et al. (2004) 'A multigene assay to predict recurrence of
+  tamoxifen-treated, node-negative breast cancer', \emph{New England
+  Journal of Medicine}, 351(27), pp. 2817--2826.
+\item
+  Perou, C.M., et al. (2000) 'Molecular portraits of human breast
+  tumours', \emph{Nature}, 406(6797), pp. 747--752.
+\item
+  Sparano, J.A., et al. (2018) 'Adjuvant chemotherapy guided by a
+  21-gene expression assay in breast cancer', \emph{New England Journal
+  of Medicine}, 379(2), pp. 111--121.
+\item
+  Exact Sciences (2026) \emph{Oncotype DX Breast Recurrence Score Test
+  Surpasses 2 Million Patients Worldwide}. Available at:
+  \url{https://investor.exactsciences.com/investor-relations/press-releases/press-release-details/2026/Oncotype-DX-Breast-Recurrence-Score-Test-Surpasses-2-Million-Patients-Worldwide/default.aspx}
+  (Accessed 22 February 2026).
+\end{itemize}
+
+\end{document}

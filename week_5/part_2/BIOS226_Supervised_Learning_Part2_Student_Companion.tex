@@ -1,0 +1,469 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\hypertarget{bios226---topic-5---supervised-learning-part-2}{%
+\section{BIOS226 - Topic 5 - Supervised Learning (Part
+2)}\label{bios226---topic-5---supervised-learning-part-2}}
+
+\hypertarget{student-companion-guide}{%
+\subsection{Student Companion Guide}\label{student-companion-guide}}
+
+\hypertarget{the-tumour-subtype-classification-pipeline}{%
+\subsubsection{The Tumour Subtype Classification
+Pipeline}\label{the-tumour-subtype-classification-pipeline}}
+
+This document is a \textbf{companion guide to Part 2 of the Supervised Learning lecture}.\\
+Use it alongside the lecture slides and code walkthrough to reinforce
+the main ideas and decisions in the modelling pipeline.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{from-data-to-decision-the-pipeline}{%
+\subsection{From Data to Decision: The
+Pipeline}\label{from-data-to-decision-the-pipeline}}
+
+Here, we focus on applying supervised learning to a synthetic breast
+cancer gene-expression dataset. We will discuss the origin of this
+dataset in this week's workshops.
+
+\begin{itemize}
+\tightlist
+\item
+  120 patients
+\item
+  10,000 gene features (\texttt{Gene\_1} to \texttt{Gene\_10000})
+\item
+  Two tumour subtypes: \texttt{Luminal\_A} and \texttt{Basal\_like}
+\item
+  Logistic regression classifier
+\end{itemize}
+
+The core objective is to predict tumour subtype from gene-expression
+patterns while avoiding leakage and overfitting. We will discuss
+leakage/overfitting in more detail in Part 2.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{define-the-prediction-problem}{%
+\subsection{1. Define the Prediction
+Problem}\label{define-the-prediction-problem}}
+
+This is a binary classification task.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Input (X):} gene-expression measurements
+\item
+  \textbf{Output (Y):} probability that a tumour is \texttt{Basal\_like}
+\end{itemize}
+
+In this pipeline, \texttt{Basal\_like} is treated as the positive class.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{validate-the-data-structure}{%
+\subsection{2. Validate the Data
+Structure}\label{validate-the-data-structure}}
+
+Before any model training, check:
+
+\begin{itemize}
+\tightlist
+\item
+  Required columns exist (\texttt{Patient\_ID}, \texttt{Subtype},
+  \texttt{Gene\_*})
+\item
+  Exactly two classes are present
+\item
+  Gene columns are numeric
+\item
+  No schema inconsistencies are present
+\end{itemize}
+
+Why this matters: model outputs are only meaningful when the input
+structure is valid.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{stratified-traintest-split}{%
+\subsection{3. Stratified Train/Test
+Split}\label{stratified-traintest-split}}
+
+Split the dataset into:
+
+\begin{itemize}
+\tightlist
+\item
+  80\% training set
+\item
+  20\% held-out test set
+\end{itemize}
+
+Use \textbf{stratification} so class balance is preserved in both
+splits.
+
+The test set is not used during training. It represents unseen patients
+and should only be used once for final evaluation.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{feature-selection-train-only}{%
+\subsection{4. Feature Selection (Train
+Only)}\label{feature-selection-train-only}}
+
+Rank genes by absolute difference in class-wise mean expression, then
+keep the top \texttt{K} genes (for example, 25).
+
+Important rule: feature selection must be done on the training set only.
+
+If test data influences feature selection, leakage occurs and
+performance estimates become optimistic.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{scaling-normalisation-train-only}{%
+\subsection{5. Scaling \& Normalisation (Train
+Only)}\label{scaling-normalisation-train-only}}
+
+After selecting features, standardise each one:
+
+\begin{itemize}
+\tightlist
+\item
+  subtract training mean
+\item
+  divide by training standard deviation
+\end{itemize}
+
+Then apply those same training-derived parameters to the test set.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{aside-rna-seq-normalisation-vs-ml-scaling}{%
+\subsection{Aside: RNA-seq Normalization vs ML
+Scaling}\label{aside-rna-seq-normalisation-vs-ml-scaling}}
+
+These are different steps.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{RNA-seq normalisation} adjusts for sequencing
+  depth/composition (for example CPM, TPM, DESeq2 size factors, TMM).
+\item
+  \textbf{Machine-learning scaling} standardises feature magnitude for
+  stable model fitting.
+\end{itemize}
+
+For this synthetic dataset, values behave like already-normalised
+expression values, so the teaching focus is on ML scaling and
+leakage-safe evaluation.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{cross-validation-on-training-data}{%
+\subsection{6. Cross-Validation on Training
+Data}\label{cross-validation-on-training-data}}
+
+Use k-fold cross-validation on the training split only.
+
+Example (10-fold):
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Split training data into 10 folds
+\item
+  Train on 9 folds
+\item
+  Validate on 1 fold
+\item
+  Repeat until each fold has been the validation fold once
+\end{enumerate}
+
+Track metrics per fold (for example AUC and precision) to estimate
+stability before touching the test set.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{fit-the-logistic-regression-model}{%
+\subsection{7. Fit the Logistic Regression
+Model}\label{fit-the-logistic-regression-model}}
+
+Logistic regression models log-odds:
+
+\texttt{log(p\ /\ (1\ -\ p))\ =\ beta0\ +\ beta1x1\ +\ beta2x2\ +\ ...}
+
+The model output is a probability between 0 and 1 for each sample.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{confusion-matrix-understanding-errors}{%
+\subsection{8. Confusion Matrix: Understanding
+Errors}\label{confusion-matrix-understanding-errors}}
+
+Choose a threshold (for example 0.85) to convert probabilities to class
+predictions.
+
+Confusion matrix components:
+
+\begin{itemize}
+\tightlist
+\item
+  True Positives (TP)
+\item
+  False Positives (FP)
+\item
+  True Negatives (TN)
+\item
+  False Negatives (FN)
+\end{itemize}
+
+Derived metrics:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Precision} = \texttt{TP\ /\ (TP\ +\ FP)}
+\item
+  \textbf{Sensitivity (Recall)} = \texttt{TP\ /\ (TP\ +\ FN)}
+\item
+  \textbf{Specificity} = \texttt{TN\ /\ (TN\ +\ FP)}
+\end{itemize}
+
+These describe performance at one specific operating point.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{roc-curve-auc}{%
+\subsection{9. ROC Curve \& AUC}\label{roc-curve-auc}}
+
+The ROC curve evaluates performance across all thresholds.
+
+\begin{itemize}
+\tightlist
+\item
+  X-axis: False Positive Rate
+\item
+  Y-axis: True Positive Rate (Sensitivity)
+\end{itemize}
+
+The AUC summarises ranking quality:
+
+\begin{itemize}
+\tightlist
+\item
+  0.5: random ranking
+\item
+  1.0: perfect ranking
+\end{itemize}
+
+AUC asks whether positive cases are generally scored above negative
+cases.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{aside-what-is-an-roc-curve}{%
+\subsection{Aside: What Is an ROC
+Curve?}\label{aside-what-is-an-roc-curve}}
+
+If you are seeing ROC for the first time, this is the quick intuition:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ROC} stands for \textbf{Receiver Operating Characteristic}.
+\item
+  The name comes from radar/signal-detection work in the 1940s, where
+  ``receiver operators'' distinguished true signals from noise.
+\item
+  In machine learning, the same idea is used to evaluate how well a
+  model separates positive and negative classes.
+\end{itemize}
+
+How to interpret an ROC curve:
+
+\begin{itemize}
+\tightlist
+\item
+  Each point on the curve corresponds to one classification threshold.
+\item
+  X-axis (False Positive Rate): how often negatives are incorrectly
+  called positive.
+\item
+  Y-axis (True Positive Rate): how often positives are correctly
+  detected.
+\item
+  Moving along the curve means changing the threshold from strict to
+  lenient.
+\end{itemize}
+
+What the shape tells you about model success:
+
+\begin{itemize}
+\tightlist
+\item
+  A curve that bends strongly toward the \textbf{top-left corner}
+  indicates good discrimination.
+\item
+  A curve close to the \textbf{diagonal line}
+  (\texttt{AUC\ \textasciitilde{}\ 0.5}) indicates near-random
+  performance.
+\item
+  A curve mostly \textbf{below the diagonal} suggests predictions may be
+  systematically reversed (for example, labels or score direction
+  flipped).
+\end{itemize}
+
+In short: the closer the curve is to top-left, the better the model is
+at ranking true positives above true negatives.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{final-test-evaluation-and-discipline}{%
+\subsection{10. Final Test Evaluation and
+Discipline}\label{final-test-evaluation-and-discipline}}
+
+After all model decisions are fixed, evaluate once on the held-out test
+set.
+
+Report:
+
+\begin{itemize}
+\tightlist
+\item
+  confusion matrix
+\item
+  precision
+\item
+  ROC AUC
+\item
+  MSE (probability-based)
+\item
+  R-squared (probability-based)
+\end{itemize}
+
+This gives the most honest estimate of how the model may perform on new
+data.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{aside-threshold-choice-and-clinical-trade-offs}{%
+\subsection{Aside: Threshold Choice and Clinical
+Trade-Offs}\label{aside-threshold-choice-and-clinical-trade-offs}}
+
+A higher threshold (for example 0.85) usually:
+
+\begin{itemize}
+\tightlist
+\item
+  increases certainty when calling positive
+\item
+  reduces false positives
+\item
+  can miss more true positives
+\end{itemize}
+
+A lower threshold (for example 0.4 to 0.5) usually:
+
+\begin{itemize}
+\tightlist
+\item
+  increases sensitivity
+\item
+  catches more true positives
+\item
+  increases false positives
+\end{itemize}
+
+The right threshold depends on the clinical consequences of false
+negatives versus false positives.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{pipeline-summary}{%
+\subsection{Pipeline Summary}\label{pipeline-summary}}
+
+\begin{itemize}
+\tightlist
+\item
+  Keep train and test roles strictly separate.
+\item
+  Perform feature selection and scaling inside the training workflow.
+\item
+  Use CV for model stability and test set for final confirmation.
+\item
+  Interpret confusion-matrix metrics and ROC/AUC together.
+\item
+  Treat threshold selection as a domain decision, not just a technical
+  default.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{reference}{%
+\subsection{Reference}\label{reference}}
+
+Perou, C. M., Sorlie, T., Eisen, M. B., van de Rijn, M., Jeffrey, S. S.,
+Rees, C. A., et al.~(2000).\\
+Molecular portraits of human breast tumours. \emph{Nature}, 406,
+747-752.
+
+\end{document}
