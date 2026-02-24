@@ -83,6 +83,16 @@ Dr. Robert Treharne
 
 ---
 
+# By the end of this topic, you should be able to:
+
+- Explain the difference between exploratory and supervised learning in biological data
+- Describe a leakage-safe supervised learning pipeline from raw data to final evaluation
+- Interpret a confusion matrix and ROC curve in a clinical context
+- Recognise common failure modes (overfitting, leakage, imbalance, label errors)
+- Critically evaluate whether a model is genuinely generalisable or silently flawed
+
+---
+
 # From Exploration to Prediction
 
 - PCA and clustering show structure in biological data.

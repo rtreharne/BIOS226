@@ -1,0 +1,374 @@
+---
+title: "BIOS226 Topic 5 — Supervised Learning Workshop"
+output:
+  html_document:
+    df_print: paged
+toc: true
+toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE
+)
+
+input_path <- knitr::current_input()
+if (!is.null(input_path) && nzchar(input_path)) {
+  knitr::opts_knit$set(root.dir = dirname(normalizePath(input_path)))
+}
+
+scripts_dir <- "scripts"
+out_dir <- "workshop_outputs"
+dir.create(out_dir, showWarnings = FALSE)
+
+generator_path <- file.path(scripts_dir, "generate_tumor_dataset.R")
+helpers_path <- file.path(scripts_dir, "model_workflow_helpers.R")
+scenario_path <- file.path(scripts_dir, "roc_curve_scenarios_tumor.R")
+
+if (!file.exists(generator_path)) stop(paste0("Missing script: ", generator_path))
+if (!file.exists(helpers_path)) stop(paste0("Missing script: ", helpers_path))
+
+source(generator_path)
+source(helpers_path)
+```
+
+# Workshop overview (2 hours)
+
+In this workshop you will run a complete, **leakage-safe** supervised learning workflow on a **synthetic gene expression** dataset:
+
+1. Generate synthetic tumor subtype data (high-dimensional: *p >> n*).
+2. Train and evaluate a classifier **without leaking test information into training**.
+3. Interpret confusion matrices and ROC/AUC, and see how **threshold choice** changes clinical tradeoffs.
+4. Reproduce common failure modes from the “How to Fail” lecture using the provided scenario script.
+
+## R Notebook quick primer (2 minutes)
+
+- What it is: An R Markdown document that mixes prose, code chunks, and outputs; when you knit or run chunks, code executes and results appear inline. It is lighter-weight than a full Quarto book but more interactive than a static script.
+- How to run a chunk: Click the green play button to the right of a code chunk (or use Ctrl+Shift+Enter / Cmd+Shift+Enter to run the current chunk in RStudio). Output appears directly beneath the chunk.
+- Workspace: All chunks share the same R session, so objects created in one chunk (e.g., `df`, `results`) are available in later chunks. Re-running from the top is the best way to reset state.
+- Working directory: The setup chunk sets `root.dir` to the notebook folder. We create `workshop_outputs/` there for generated CSVs and plots.
+- Why useful for this workshop: You can read an explanation, tweak parameters, re-run a chunk, and immediately see how metrics/plots change—ideal for exploring leakage, thresholds, and failure modes.
+
+## Learning objectives (practical)
+
+By the end, you will be able to:
+
+- Generate a reproducible synthetic dataset and sanity-check it.
+- Run a leakage-safe pipeline: validate → stratified split → CV (train only) → feature selection (train only) → scaling (train only) → final test evaluation.
+- Read a confusion matrix and compute precision/sensitivity/specificity.
+- Interpret ROC curves and AUC, and explain what they do (and do not) guarantee.
+- Identify “silent failure” patterns: overfitting, underfitting, wrong labels, feature-selection leakage, and class imbalance.
+
+# 1) Generate the synthetic dataset
+
+We will generate a synthetic dataset that behaves like already-normalized (log-expression-like) values:
+
+- `n = 120` patients
+- `p = 10,000` genes
+- two subtypes: `Luminal_A` vs `Basal_like`
+- only `50` genes truly carry signal; the rest are noise
+
+```{r generate-data}
+seed <- 123
+n_samples <- 120
+n_genes <- 10000
+n_informative <- 50
+class_proportion <- 0.6
+noise_sd <- 1.5
+
+old_wd <- getwd()
+setwd(out_dir)
+on.exit(setwd(old_wd), add = TRUE)
+df <- generate_tumor_dataset(
+  seed = seed,
+  n_samples = n_samples,
+  n_genes = n_genes,
+  n_informative = n_informative,
+  class_proportion = class_proportion,
+  noise_sd = noise_sd
+)
+
+dim(df)
+table(df$Subtype)
+
+gene_cols <- grep("^Gene_", names(df), value = TRUE)
+length(gene_cols)
+```
+
+<details>
+<summary><strong>Exercise 1 (predict first): make it harder/easier</strong></summary>
+
+Change `noise_sd` and/or `n_informative` and predict what will happen to AUC.
+
+Hints:
+
+- Increasing `noise_sd` makes classes overlap more (harder task).
+- Decreasing `n_informative` reduces true signal (harder task).
+
+```{r exercise-1-solution, eval=FALSE}
+# Example: harder dataset
+noise_sd <- 2.5
+n_informative <- 10
+
+old_wd <- getwd()
+setwd(out_dir)
+on.exit(setwd(old_wd), add = TRUE)
+df_harder <- generate_tumor_dataset(
+  seed = seed,
+  n_samples = n_samples,
+  n_genes = n_genes,
+  n_informative = n_informative,
+  class_proportion = class_proportion,
+  noise_sd = noise_sd
+)
+```
+</details>
+
+# 2) Run the leakage-safe pipeline end-to-end
+
+We will treat `Basal_like` as the **positive class**.
+
+Key discipline:
+
+- The **test set is held out** and not used for feature selection, scaling, or model tuning.
+- Cross-validation is performed **only inside the training split**.
+
+```{r run-workflow}
+results <- run_tumor_workflow(
+  df = df,
+  seed = 123,
+  train_fraction = 0.8,
+  k_folds = 5,
+  top_k_genes = 25,
+  positive_class = "Basal_like",
+  threshold = 0.85
+)
+
+results$dataset_summary
+results$split_summary
+
+results$cv$auc_values
+results$cv$precision_values
+c(auc_mean = results$cv$auc_mean, auc_sd = results$cv$auc_sd)
+c(precision_mean = results$cv$precision_mean, precision_sd = results$cv$precision_sd)
+
+results$selected_genes[1:10]
+```
+
+# 3) Confusion matrix + threshold tradeoffs
+
+The confusion matrix depends on a chosen probability threshold (here, `0.85`).
+
+```{r confusion-matrix}
+results$test$confusion_matrix
+```
+
+```{r confusion-metrics}
+confusion_metrics <- function(confusion_matrix_2x2) {
+  mat <- as.matrix(confusion_matrix_2x2)
+  if (!all(dim(mat) == c(2, 2))) stop("Expected a 2x2 confusion matrix.")
+
+  tn <- mat[1, 1]
+  fn <- mat[1, 2]
+  fp <- mat[2, 1]
+  tp <- mat[2, 2]
+
+  safe_ratio <- function(num, den) if (den == 0) NA_real_ else num / den
+
+  precision <- safe_ratio(tp, tp + fp)
+  sensitivity <- safe_ratio(tp, tp + fn)
+  specificity <- safe_ratio(tn, tn + fp)
+
+  list(
+    tn = tn, fn = fn, fp = fp, tp = tp,
+    precision = precision,
+    sensitivity = sensitivity,
+    specificity = specificity
+  )
+}
+
+cm <- confusion_metrics(results$test$confusion_matrix)
+cm
+```
+
+```{r truth-table-plot}
+truth_table_file <- file.path(out_dir, paste0("truth_table_test_seed_", results$config$seed, ".png"))
+
+save_truth_table_plot(
+  confusion_matrix = results$test$confusion_matrix,
+  file_path = truth_table_file
+)
+
+knitr::include_graphics(truth_table_file)
+```
+
+<details>
+<summary><strong>Exercise 2: change the threshold</strong></summary>
+
+Change `threshold` from `0.85` to `0.5`.
+
+Questions:
+
+- Which error type increases (FP or FN), and why?
+- Which metric improves, and which metric worsens?
+
+```{r exercise-2-solution, eval=FALSE}
+results_thr_05 <- run_tumor_workflow(
+  df = df,
+  seed = 123,
+  train_fraction = 0.8,
+  k_folds = 5,
+  top_k_genes = 25,
+  positive_class = "Basal_like",
+  threshold = 0.5
+)
+
+results_thr_05$test$confusion_matrix
+confusion_metrics(results_thr_05$test$confusion_matrix)
+```
+</details>
+
+# 4) ROC curve + AUC (threshold-free ranking)
+
+ROC/AUC evaluates how well the model **ranks** positives above negatives across all thresholds.
+
+```{r roc-plot}
+roc_file <- file.path(out_dir, paste0("roc_curve_test_seed_", results$config$seed, ".png"))
+roc_file_ggplot <- file.path(out_dir, paste0("roc_curve_test_seed_", results$config$seed, "_ggplot2.png"))
+
+save_roc_plot(
+  fpr = results$test$roc_fpr,
+  tpr = results$test$roc_tpr,
+  auc_value = results$test$auc,
+  file_path = roc_file,
+  cv_roc_curves = results$cv$roc_curves
+)
+
+save_roc_plot_ggplot(
+  fpr = results$test$roc_fpr,
+  tpr = results$test$roc_tpr,
+  auc_value = results$test$auc,
+  file_path = roc_file_ggplot,
+  cv_roc_curves = results$cv$roc_curves
+)
+
+knitr::include_graphics(roc_file)
+```
+
+# 5) Threshold sweep mini-lab (operating point selection)
+
+Now that the workflow returns held-out test probabilities (`results$test$probs`) and truth labels (`results$test$y_true_binary`), we can explore tradeoffs across thresholds.
+
+```{r threshold-sweep}
+probs <- results$test$probs
+y_true <- results$test$y_true_binary
+
+threshold_grid <- seq(0.05, 0.95, by = 0.05)
+
+threshold_summary <- do.call(
+  rbind,
+  lapply(threshold_grid, function(thr) {
+    pred <- ifelse(probs >= thr, 1L, 0L)
+
+    tp <- sum(pred == 1L & y_true == 1L)
+    fp <- sum(pred == 1L & y_true == 0L)
+    tn <- sum(pred == 0L & y_true == 0L)
+    fn <- sum(pred == 0L & y_true == 1L)
+
+    safe_ratio <- function(num, den) if (den == 0) NA_real_ else num / den
+
+    data.frame(
+      threshold = thr,
+      precision = safe_ratio(tp, tp + fp),
+      sensitivity = safe_ratio(tp, tp + fn),
+      specificity = safe_ratio(tn, tn + fp),
+      tp = tp, fp = fp, tn = tn, fn = fn
+    )
+  })
+)
+
+head(threshold_summary, 6)
+```
+
+```{r threshold-sweep-plot}
+op <- par(mar = c(4.5, 4.5, 2, 1))
+plot(
+  threshold_summary$threshold,
+  threshold_summary$sensitivity,
+  type = "b",
+  pch = 16,
+  ylim = c(0, 1),
+  xlab = "Threshold",
+  ylab = "Metric value",
+  main = "Threshold tradeoffs (held-out test set)"
+)
+lines(threshold_summary$threshold, threshold_summary$specificity, type = "b", pch = 16, col = "#1f5a99")
+lines(threshold_summary$threshold, threshold_summary$precision, type = "b", pch = 16, col = "gray30")
+legend(
+  "bottomleft",
+  legend = c("Sensitivity", "Specificity", "Precision"),
+  col = c("black", "#1f5a99", "gray30"),
+  lty = 1,
+  pch = 16,
+  bty = "n"
+)
+par(op)
+```
+
+**Prompt:** Choose a threshold for each clinical goal:
+
+- Goal A: minimize false positives (high specificity).
+- Goal B: minimize false negatives (high sensitivity).
+
+# 6) “How to Fail” — run the full scenario script
+
+This section reproduces the Part 3 “How to Fail” plots by running the provided script.
+
+**Note:** This chunk can take ~1–3 minutes depending on your machine.
+
+```{r how-to-fail-run, cache=FALSE}
+if (!file.exists(scenario_path)) stop(paste0("Missing script: ", scenario_path))
+source(scenario_path, chdir = TRUE)
+```
+
+```{r how-to-fail-display}
+scenario_files <- c(
+  file.path("scripts", "roc_scenario_0_perfect_high_n_high_p_seed_1006.png"),
+  file.path("scripts", "roc_scenario_1_overfitting_seed_1201.png"),
+  file.path("scripts", "roc_scenario_2_underfitting_seed_1002.png"),
+  file.path("scripts", "roc_scenario_3_wrong_labels_seed_1003.png"),
+  file.path("scripts", "roc_scenario_4_feature_leakage_seed_1000.png"),
+  file.path("scripts", "roc_scenario_5_ignore_imbalance_90_10_seed_1005.png")
+)
+
+missing_files <- scenario_files[!file.exists(scenario_files)]
+if (length(missing_files) > 0) {
+  cat("Some scenario images were not found. Rerun the previous chunk.\n\nMissing:\n")
+  cat(paste0("- ", missing_files, collapse = "\n"))
+} else {
+  knitr::include_graphics(scenario_files)
+}
+```
+
+## Interpretation prompts (write 1–2 sentences each)
+
+For each scenario:
+
+1. What do the **CV envelope** and **test ROC** suggest about generalisation?
+2. Which failure mode is shown (overfitting / underfitting / wrong labels / leakage / imbalance)?
+3. What pipeline decision caused the failure?
+
+# 7) Wrap-up checklist
+
+You should now be able to answer:
+
+- Where can leakage occur in this workflow (and how did we prevent it)?
+- Why can ROC/AUC look acceptable while the confusion matrix is clinically unacceptable?
+- What changed when we altered threshold, and why is this not “cheating”?
+
+# 8) Reproducibility
+
+```{r session-info}
+sessionInfo()
+```

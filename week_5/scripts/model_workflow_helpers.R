@@ -328,7 +328,9 @@ run_tumor_workflow <- function(df, seed, train_fraction, k_folds, top_k_genes, p
       train_n = length(train_idx),
       test_n = length(test_idx),
       train_class_counts = table(labels_train),
-      test_class_counts = table(labels_test)
+      test_class_counts = table(labels_test),
+      train_idx = train_idx,
+      test_idx = test_idx
     ),
     cv = cv_results,
     selected_genes = selected_genes_final,
@@ -338,6 +340,8 @@ run_tumor_workflow <- function(df, seed, train_fraction, k_folds, top_k_genes, p
       fp = test_conf$fp,
       tn = test_conf$tn,
       fn = test_conf$fn,
+      probs = test_probs,
+      y_true_binary = y_test_binary,
       precision = test_conf$precision,
       auc = test_roc$auc,
       roc_fpr = test_roc$fpr,

@@ -2,3 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
+/tumor_dataset_seed_*.csv
+/week_5/tumor_dataset_seed_*.csv
+/week_5/scripts/tumor_dataset_seed_*.csv
+/week_5/workshop_outputs/
+/week_5/BIOS226_Topic5_Supervised_Learning_Workshop.html
+/roc_curve_test_seed_*.png
+/truth_table_test_seed_*.png
+/roc_scenario_*.png

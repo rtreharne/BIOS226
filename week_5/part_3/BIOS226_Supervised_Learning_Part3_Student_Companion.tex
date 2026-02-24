@@ -1,0 +1,399 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\section{BIOS226 -- Supervised Learning (Part
+3)}\label{bios226-supervised-learning-part-3}
+
+\subsection{Student Companion: How To
+Fail}\label{student-companion-how-to-fail}
+
+This companion document explains the scenarios shown in the lecture
+slides (Part 3: How To Fail).
+
+The purpose of this section is to help you understand how supervised
+learning models fail --- often silently --- and how to recognise those
+failures using ROC curves and confusion matrices.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Why Study Failure?}\label{why-study-failure}
+
+In biological modelling, the greatest danger is not that a model
+performs poorly.
+
+The real danger is that a model appears to perform well --- but is
+fundamentally flawed.
+
+In high-dimensional data (10,000 genes, 120 patients), it is very easy
+to build models that look impressive but are unreliable.
+
+Each scenario in the slides shows a different failure mode.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Scenario 0: High n, High p, Clean Signal (The Ideal
+Case)}\label{scenario-0-high-n-high-p-clean-signal-the-ideal-case}
+
+This scenario represents a healthy modelling pipeline.
+
+Key characteristics:
+
+\begin{itemize}
+\tightlist
+\item
+  Adequate number of samples
+\item
+  Reasonable number of selected genes
+\item
+  True biological signal present
+\item
+  No data leakage
+\item
+  Balanced classes
+\end{itemize}
+
+What you observe:
+
+\begin{itemize}
+\tightlist
+\item
+  Cross-validation AUC similar to Test AUC
+\item
+  ROC curve is smooth and high
+\item
+  Small gap between CV and test performance
+\item
+  Confusion matrix shows sensible error rates
+\end{itemize}
+
+Interpretation:
+
+The model generalises well. It has learned genuine structure rather than
+memorising noise.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Scenario 1: Overfitting}\label{scenario-1-overfitting}
+
+Overfitting occurs when the model learns noise specific to the training
+data.
+
+Typical causes:
+
+\begin{itemize}
+\tightlist
+\item
+  Too many features relative to number of samples (p
+  \textgreater\textgreater{} n)
+\item
+  Weak regularisation
+\item
+  Highly flexible model structure
+\end{itemize}
+
+What you observe:
+
+\begin{itemize}
+\tightlist
+\item
+  Strong performance during cross-validation
+\item
+  Noticeable instability across folds
+\item
+  Potential difference between CV and test metrics
+\end{itemize}
+
+Conceptually:
+
+The model memorises patterns unique to the training set rather than
+capturing generalisable biology.
+
+This is extremely common in omics datasets.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Scenario 2: Underfitting}\label{scenario-2-underfitting}
+
+Underfitting happens when the model is too simple to capture real
+signal.
+
+Possible causes:
+
+\begin{itemize}
+\tightlist
+\item
+  Too few informative features selected
+\item
+  Model overly constrained
+\item
+  Signal weak relative to noise
+\end{itemize}
+
+What you observe:
+
+\begin{itemize}
+\tightlist
+\item
+  ROC curve closer to diagonal
+\item
+  Lower AUC values
+\item
+  Poor performance on both CV and test sets
+\end{itemize}
+
+Conceptually:
+
+The model lacks sufficient capacity to separate Luminal\_A from
+Basal\_like tumors.
+
+Underfitting is less deceptive than overfitting --- but still clinically
+useless.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Scenario 3: Wrong Labels in
+Training}\label{scenario-3-wrong-labels-in-training}
+
+This scenario simulates mislabelled samples.
+
+Examples in real research:
+
+\begin{itemize}
+\tightlist
+\item
+  Data entry errors
+\item
+  Misclassified tumor subtype
+\item
+  Incorrect clinical annotation
+\end{itemize}
+
+What you observe:
+
+\begin{itemize}
+\tightlist
+\item
+  ROC curve near diagonal or worse
+\item
+  Very low AUC
+\item
+  Confusion matrix dominated by errors
+\end{itemize}
+
+Key lesson:
+
+Supervised learning depends entirely on accurate labels.
+
+If labels are incorrect, the model will confidently learn incorrect
+biology.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Scenario 4: Feature Selection
+Leakage}\label{scenario-4-feature-selection-leakage}
+
+This is one of the most dangerous failure modes.
+
+Feature selection was performed before splitting the data.
+
+This means the test data influenced which genes were selected.
+
+What you observe:
+
+\begin{itemize}
+\tightlist
+\item
+  Extremely high CV AUC
+\item
+  Extremely high Test AUC
+\item
+  Performance appears unrealistically perfect
+\end{itemize}
+
+Why this is dangerous:
+
+The test set is no longer independent.
+
+The model has indirectly ``seen the answers.''
+
+Leakage produces artificially inflated performance.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Scenario 5: Ignoring Class
+Imbalance}\label{scenario-5-ignoring-class-imbalance}
+
+In this case, one subtype heavily dominates the dataset (e.g., 90\%
+Luminal\_A, 10\% Basal\_like).
+
+What you observe:
+
+\begin{itemize}
+\tightlist
+\item
+  CV AUC may look reasonable
+\item
+  Test AUC may drop sharply
+\item
+  Confusion matrix may show zero true positives for Basal\_like
+\end{itemize}
+
+Why this happens:
+
+The model learns to predict the majority class.
+
+If it predicts Luminal\_A for everyone, accuracy remains high but
+Basal\_like tumors are never detected.
+
+Accuracy becomes misleading in imbalanced datasets.
+
+This is especially dangerous in medical contexts.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Recognising Failure Using ROC
+Curves}\label{recognising-failure-using-roc-curves}
+
+ROC curves help identify patterns of failure:
+
+Overfitting: - Large variance across folds - Instability between CV and
+test
+
+Underfitting: - Curve close to diagonal - AUC near 0.5
+
+Leakage: - Suspiciously perfect performance
+
+Label errors: - Performance worse than random
+
+Class imbalance: - ROC may hide poor minority detection - Confusion
+matrix becomes essential
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Why Confusion Matrices
+Matter}\label{why-confusion-matrices-matter}
+
+ROC curves describe discrimination across all thresholds.
+
+Confusion matrices describe consequences at one chosen threshold.
+
+In clinical settings:
+
+\begin{itemize}
+\tightlist
+\item
+  False negatives may deny necessary treatment
+\item
+  False positives may cause unnecessary intervention
+\end{itemize}
+
+Model evaluation must consider clinical consequences, not just AUC.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{The Meta-Lesson}\label{the-meta-lesson}
+
+All of these failures share one theme:
+
+The model appears objective and mathematical.
+
+But modelling is a human-designed pipeline.
+
+Failure happens when:
+
+\begin{itemize}
+\tightlist
+\item
+  We split incorrectly
+\item
+  We leak information
+\item
+  We mis-handle imbalance
+\item
+  We misunderstand metrics
+\item
+  We report only favourable numbers
+\end{itemize}
+
+Good modelling is not about maximising AUC.
+
+It is about preventing self-deception.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Final Reflection Questions}\label{final-reflection-questions}
+
+When evaluating any supervised model, ask:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Was feature selection done after splitting?
+\item
+  Were scaling parameters learned on training data only?
+\item
+  Is there a large gap between CV and test performance?
+\item
+  Are the labels trustworthy?
+\item
+  Is class balance appropriate?
+\item
+  Does the chosen threshold match the clinical goal?
+\end{enumerate}
+
+If you cannot answer these confidently, the model may be failing
+silently.
+
+\end{document}
