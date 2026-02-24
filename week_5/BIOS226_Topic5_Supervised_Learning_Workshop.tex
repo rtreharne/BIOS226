@@ -1,0 +1,864 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={BIOS226 Topic 5 --- Supervised Learning Workshop},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{BIOS226 Topic 5 --- Supervised Learning Workshop}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+\hypertarget{workshop-overview-2-hours}{%
+\section{Workshop overview (2 hours)}\label{workshop-overview-2-hours}}
+
+In this workshop you will run a complete, \textbf{leakage-safe}
+supervised learning workflow on a \textbf{synthetic gene expression}
+dataset:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Generate synthetic tumor subtype data (high-dimensional: \emph{p
+  \textgreater\textgreater{} n}).
+\item
+  Train and evaluate a classifier \textbf{without leaking test
+  information into training}.
+\item
+  Interpret confusion matrices and ROC/AUC, and see how
+  \textbf{threshold choice} changes clinical tradeoffs.
+\item
+  Reproduce common failure modes from the ``How to Fail'' lecture using
+  the provided scenario script.
+\end{enumerate}
+
+\hypertarget{r-notebook-quick-primer-2-minutes}{%
+\subsection{R Notebook quick primer (2
+minutes)}\label{r-notebook-quick-primer-2-minutes}}
+
+\begin{itemize}
+\tightlist
+\item
+  What it is: An R Markdown document that mixes prose, code chunks, and
+  outputs; when you knit or run chunks, code executes and results appear
+  inline. It is lighter-weight than a full Quarto book but more
+  interactive than a static script.
+\item
+  How to run a chunk: Click the green play button to the right of a code
+  chunk (or use Ctrl+Shift+Enter / Cmd+Shift+Enter to run the current
+  chunk in RStudio). Output appears directly beneath the chunk.
+\item
+  Workspace: All chunks share the same R session, so objects created in
+  one chunk (e.g., \texttt{df}, \texttt{results}) are available in later
+  chunks. Re-running from the top is the best way to reset state.
+\item
+  Working directory: The setup chunk sets \texttt{root.dir} to the
+  notebook folder. We create \texttt{workshop\_outputs/} there for
+  generated CSVs and plots.
+\item
+  Why useful for this workshop: You can read an explanation, tweak
+  parameters, re-run a chunk, and immediately see how metrics/plots
+  change---ideal for exploring leakage, thresholds, and failure modes.
+\end{itemize}
+
+\hypertarget{learning-objectives-practical}{%
+\subsection{Learning objectives
+(practical)}\label{learning-objectives-practical}}
+
+By the end, you will be able to:
+
+\begin{itemize}
+\tightlist
+\item
+  Generate a reproducible synthetic dataset and sanity-check it.
+\item
+  Run a leakage-safe pipeline: validate → stratified split → CV (train
+  only) → feature selection (train only) → scaling (train only) → final
+  test evaluation.
+\item
+  Read a confusion matrix and compute precision/sensitivity/specificity.
+\item
+  Interpret ROC curves and AUC, and explain what they do (and do not)
+  guarantee.
+\item
+  Identify ``silent failure'' patterns: overfitting, underfitting, wrong
+  labels, feature-selection leakage, and class imbalance.
+\end{itemize}
+
+\hypertarget{generate-the-synthetic-dataset}{%
+\section{1) Generate the synthetic
+dataset}\label{generate-the-synthetic-dataset}}
+
+We will generate a synthetic dataset that behaves like
+already-normalized (log-expression-like) values:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{n\ =\ 120} patients
+\item
+  \texttt{p\ =\ 10,000} genes
+\item
+  two subtypes: \texttt{Luminal\_A} vs \texttt{Basal\_like}
+\item
+  only \texttt{50} genes truly carry signal; the rest are noise
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{seed }\OtherTok{\textless{}{-}} \DecValTok{123}
+\NormalTok{n\_samples }\OtherTok{\textless{}{-}} \DecValTok{120}
+\NormalTok{n\_genes }\OtherTok{\textless{}{-}} \DecValTok{10000}
+\NormalTok{n\_informative }\OtherTok{\textless{}{-}} \DecValTok{50}
+\NormalTok{class\_proportion }\OtherTok{\textless{}{-}} \FloatTok{0.6}
+\NormalTok{noise\_sd }\OtherTok{\textless{}{-}} \FloatTok{1.5}
+
+\NormalTok{old\_wd }\OtherTok{\textless{}{-}} \FunctionTok{getwd}\NormalTok{()}
+\FunctionTok{setwd}\NormalTok{(out\_dir)}
+\FunctionTok{on.exit}\NormalTok{(}\FunctionTok{setwd}\NormalTok{(old\_wd), }\AttributeTok{add =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{df }\OtherTok{\textless{}{-}} \FunctionTok{generate\_tumor\_dataset}\NormalTok{(}
+  \AttributeTok{seed =}\NormalTok{ seed,}
+  \AttributeTok{n\_samples =}\NormalTok{ n\_samples,}
+  \AttributeTok{n\_genes =}\NormalTok{ n\_genes,}
+  \AttributeTok{n\_informative =}\NormalTok{ n\_informative,}
+  \AttributeTok{class\_proportion =}\NormalTok{ class\_proportion,}
+  \AttributeTok{noise\_sd =}\NormalTok{ noise\_sd}
+\NormalTok{)}
+
+\FunctionTok{dim}\NormalTok{(df)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]   120 10002
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{table}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{Subtype)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Luminal_A Basal_like 
+##         72         48
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{gene\_cols }\OtherTok{\textless{}{-}} \FunctionTok{grep}\NormalTok{(}\StringTok{"\^{}Gene\_"}\NormalTok{, }\FunctionTok{names}\NormalTok{(df), }\AttributeTok{value =} \ConstantTok{TRUE}\NormalTok{)}
+\FunctionTok{length}\NormalTok{(gene\_cols)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 10000
+\end{verbatim}
+
+Exercise 1 (predict first): make it harder/easier
+
+Change \texttt{noise\_sd} and/or \texttt{n\_informative} and predict
+what will happen to AUC.
+
+Hints:
+
+\begin{itemize}
+\tightlist
+\item
+  Increasing \texttt{noise\_sd} makes classes overlap more (harder
+  task).
+\item
+  Decreasing \texttt{n\_informative} reduces true signal (harder task).
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Example: harder dataset}
+\NormalTok{noise\_sd }\OtherTok{\textless{}{-}} \FloatTok{2.5}
+\NormalTok{n\_informative }\OtherTok{\textless{}{-}} \DecValTok{10}
+
+\NormalTok{old\_wd }\OtherTok{\textless{}{-}} \FunctionTok{getwd}\NormalTok{()}
+\FunctionTok{setwd}\NormalTok{(out\_dir)}
+\FunctionTok{on.exit}\NormalTok{(}\FunctionTok{setwd}\NormalTok{(old\_wd), }\AttributeTok{add =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{df\_harder }\OtherTok{\textless{}{-}} \FunctionTok{generate\_tumor\_dataset}\NormalTok{(}
+  \AttributeTok{seed =}\NormalTok{ seed,}
+  \AttributeTok{n\_samples =}\NormalTok{ n\_samples,}
+  \AttributeTok{n\_genes =}\NormalTok{ n\_genes,}
+  \AttributeTok{n\_informative =}\NormalTok{ n\_informative,}
+  \AttributeTok{class\_proportion =}\NormalTok{ class\_proportion,}
+  \AttributeTok{noise\_sd =}\NormalTok{ noise\_sd}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{run-the-leakage-safe-pipeline-end-to-end}{%
+\section{2) Run the leakage-safe pipeline
+end-to-end}\label{run-the-leakage-safe-pipeline-end-to-end}}
+
+We will treat \texttt{Basal\_like} as the \textbf{positive class}.
+
+Key discipline:
+
+\begin{itemize}
+\tightlist
+\item
+  The \textbf{test set is held out} and not used for feature selection,
+  scaling, or model tuning.
+\item
+  Cross-validation is performed \textbf{only inside the training split}.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{results }\OtherTok{\textless{}{-}} \FunctionTok{run\_tumor\_workflow}\NormalTok{(}
+  \AttributeTok{df =}\NormalTok{ df,}
+  \AttributeTok{seed =} \DecValTok{123}\NormalTok{,}
+  \AttributeTok{train\_fraction =} \FloatTok{0.8}\NormalTok{,}
+  \AttributeTok{k\_folds =} \DecValTok{5}\NormalTok{,}
+  \AttributeTok{top\_k\_genes =} \DecValTok{25}\NormalTok{,}
+  \AttributeTok{positive\_class =} \StringTok{"Basal\_like"}\NormalTok{,}
+  \AttributeTok{threshold =} \FloatTok{0.85}
+\NormalTok{)}
+
+\NormalTok{results}\SpecialCharTok{$}\NormalTok{dataset\_summary}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $n_samples
+## [1] 120
+## 
+## $n_genes
+## [1] 10000
+## 
+## $class_counts
+## 
+##  Luminal_A Basal_like 
+##         72         48
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{results}\SpecialCharTok{$}\NormalTok{split\_summary}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $train_n
+## [1] 95
+## 
+## $test_n
+## [1] 25
+## 
+## $train_class_counts
+## labels_train
+## Basal_like  Luminal_A 
+##         38         57 
+## 
+## $test_class_counts
+## labels_test
+## Basal_like  Luminal_A 
+##         10         15 
+## 
+## $train_idx
+##  [1]   1   2   3   5   6   7   8   9  10  11  12  13  14  15  16  17  19  21  22
+## [20]  23  24  26  27  29  30  32  33  35  36  37  38  39  40  42  43  44  45  47
+## [39]  49  50  51  52  53  54  55  56  57  58  59  60  61  62  64  65  66  67  68
+## [58]  69  70  71  73  74  75  76  81  83  85  88  89  90  91  93  94  95  96  98
+## [77]  99 101 102 103 104 105 107 108 109 110 111 112 113 114 115 116 117 118 119
+## 
+## $test_idx
+##  [1]   4  18  20  25  28  31  34  41  46  48  63  72  77  78  79  80  82  84  86
+## [20]  87  92  97 100 106 120
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{results}\SpecialCharTok{$}\NormalTok{cv}\SpecialCharTok{$}\NormalTok{auc\_values}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.8489583 0.9947917 0.9147727 1.0000000 0.8896104
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{results}\SpecialCharTok{$}\NormalTok{cv}\SpecialCharTok{$}\NormalTok{precision\_values}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.8000000 0.8750000 0.6000000 1.0000000 0.7142857
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{c}\NormalTok{(}\AttributeTok{auc\_mean =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{cv}\SpecialCharTok{$}\NormalTok{auc\_mean, }\AttributeTok{auc\_sd =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{cv}\SpecialCharTok{$}\NormalTok{auc\_sd)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   auc_mean     auc_sd 
+## 0.92962662 0.06619706
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{c}\NormalTok{(}\AttributeTok{precision\_mean =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{cv}\SpecialCharTok{$}\NormalTok{precision\_mean, }\AttributeTok{precision\_sd =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{cv}\SpecialCharTok{$}\NormalTok{precision\_sd)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## precision_mean   precision_sd 
+##      0.7978571      0.1524377
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{results}\SpecialCharTok{$}\NormalTok{selected\_genes[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "Gene_33" "Gene_12" "Gene_22" "Gene_5"  "Gene_45" "Gene_4"  "Gene_16"
+##  [8] "Gene_26" "Gene_50" "Gene_48"
+\end{verbatim}
+
+\hypertarget{confusion-matrix-threshold-tradeoffs}{%
+\section{3) Confusion matrix + threshold
+tradeoffs}\label{confusion-matrix-threshold-tradeoffs}}
+
+The confusion matrix depends on a chosen probability threshold (here,
+\texttt{0.85}).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{results}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{confusion\_matrix}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##             Actual
+## Predicted    Luminal_A Basal_like
+##   Luminal_A         12          1
+##   Basal_like         3          9
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{confusion\_metrics }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(confusion\_matrix\_2x2) \{}
+\NormalTok{  mat }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(confusion\_matrix\_2x2)}
+  \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{all}\NormalTok{(}\FunctionTok{dim}\NormalTok{(mat) }\SpecialCharTok{==} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{))) }\FunctionTok{stop}\NormalTok{(}\StringTok{"Expected a 2x2 confusion matrix."}\NormalTok{)}
+
+\NormalTok{  tn }\OtherTok{\textless{}{-}}\NormalTok{ mat[}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{]}
+\NormalTok{  fn }\OtherTok{\textless{}{-}}\NormalTok{ mat[}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{]}
+\NormalTok{  fp }\OtherTok{\textless{}{-}}\NormalTok{ mat[}\DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{]}
+\NormalTok{  tp }\OtherTok{\textless{}{-}}\NormalTok{ mat[}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{]}
+
+\NormalTok{  safe\_ratio }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(num, den) }\ControlFlowTok{if}\NormalTok{ (den }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\ConstantTok{NA\_real\_} \ControlFlowTok{else}\NormalTok{ num }\SpecialCharTok{/}\NormalTok{ den}
+
+\NormalTok{  precision }\OtherTok{\textless{}{-}} \FunctionTok{safe\_ratio}\NormalTok{(tp, tp }\SpecialCharTok{+}\NormalTok{ fp)}
+\NormalTok{  sensitivity }\OtherTok{\textless{}{-}} \FunctionTok{safe\_ratio}\NormalTok{(tp, tp }\SpecialCharTok{+}\NormalTok{ fn)}
+\NormalTok{  specificity }\OtherTok{\textless{}{-}} \FunctionTok{safe\_ratio}\NormalTok{(tn, tn }\SpecialCharTok{+}\NormalTok{ fp)}
+
+  \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{tn =}\NormalTok{ tn, }\AttributeTok{fn =}\NormalTok{ fn, }\AttributeTok{fp =}\NormalTok{ fp, }\AttributeTok{tp =}\NormalTok{ tp,}
+    \AttributeTok{precision =}\NormalTok{ precision,}
+    \AttributeTok{sensitivity =}\NormalTok{ sensitivity,}
+    \AttributeTok{specificity =}\NormalTok{ specificity}
+\NormalTok{  )}
+\NormalTok{\}}
+
+\NormalTok{cm }\OtherTok{\textless{}{-}} \FunctionTok{confusion\_metrics}\NormalTok{(results}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{confusion\_matrix)}
+\NormalTok{cm}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $tn
+## [1] 12
+## 
+## $fn
+## [1] 1
+## 
+## $fp
+## [1] 3
+## 
+## $tp
+## [1] 9
+## 
+## $precision
+## [1] 0.75
+## 
+## $sensitivity
+## [1] 0.9
+## 
+## $specificity
+## [1] 0.8
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{truth\_table\_file }\OtherTok{\textless{}{-}} \FunctionTok{file.path}\NormalTok{(out\_dir, }\FunctionTok{paste0}\NormalTok{(}\StringTok{"truth\_table\_test\_seed\_"}\NormalTok{, results}\SpecialCharTok{$}\NormalTok{config}\SpecialCharTok{$}\NormalTok{seed, }\StringTok{".png"}\NormalTok{))}
+
+\FunctionTok{save\_truth\_table\_plot}\NormalTok{(}
+  \AttributeTok{confusion\_matrix =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{confusion\_matrix,}
+  \AttributeTok{file\_path =}\NormalTok{ truth\_table\_file}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## pdf 
+##   2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{include\_graphics}\NormalTok{(truth\_table\_file)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics[width=12.5in]{workshop_outputs/truth_table_test_seed_123}
+
+Exercise 2: change the threshold
+
+Change \texttt{threshold} from \texttt{0.85} to \texttt{0.5}.
+
+Questions:
+
+\begin{itemize}
+\tightlist
+\item
+  Which error type increases (FP or FN), and why?
+\item
+  Which metric improves, and which metric worsens?
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{results\_thr\_05 }\OtherTok{\textless{}{-}} \FunctionTok{run\_tumor\_workflow}\NormalTok{(}
+  \AttributeTok{df =}\NormalTok{ df,}
+  \AttributeTok{seed =} \DecValTok{123}\NormalTok{,}
+  \AttributeTok{train\_fraction =} \FloatTok{0.8}\NormalTok{,}
+  \AttributeTok{k\_folds =} \DecValTok{5}\NormalTok{,}
+  \AttributeTok{top\_k\_genes =} \DecValTok{25}\NormalTok{,}
+  \AttributeTok{positive\_class =} \StringTok{"Basal\_like"}\NormalTok{,}
+  \AttributeTok{threshold =} \FloatTok{0.5}
+\NormalTok{)}
+
+\NormalTok{results\_thr\_05}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{confusion\_matrix}
+\FunctionTok{confusion\_metrics}\NormalTok{(results\_thr\_05}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{confusion\_matrix)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{roc-curve-auc-threshold-free-ranking}{%
+\section{4) ROC curve + AUC (threshold-free
+ranking)}\label{roc-curve-auc-threshold-free-ranking}}
+
+ROC/AUC evaluates how well the model \textbf{ranks} positives above
+negatives across all thresholds.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{roc\_file }\OtherTok{\textless{}{-}} \FunctionTok{file.path}\NormalTok{(out\_dir, }\FunctionTok{paste0}\NormalTok{(}\StringTok{"roc\_curve\_test\_seed\_"}\NormalTok{, results}\SpecialCharTok{$}\NormalTok{config}\SpecialCharTok{$}\NormalTok{seed, }\StringTok{".png"}\NormalTok{))}
+\NormalTok{roc\_file\_ggplot }\OtherTok{\textless{}{-}} \FunctionTok{file.path}\NormalTok{(out\_dir, }\FunctionTok{paste0}\NormalTok{(}\StringTok{"roc\_curve\_test\_seed\_"}\NormalTok{, results}\SpecialCharTok{$}\NormalTok{config}\SpecialCharTok{$}\NormalTok{seed, }\StringTok{"\_ggplot2.png"}\NormalTok{))}
+
+\FunctionTok{save\_roc\_plot}\NormalTok{(}
+  \AttributeTok{fpr =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{roc\_fpr,}
+  \AttributeTok{tpr =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{roc\_tpr,}
+  \AttributeTok{auc\_value =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{auc,}
+  \AttributeTok{file\_path =}\NormalTok{ roc\_file,}
+  \AttributeTok{cv\_roc\_curves =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{cv}\SpecialCharTok{$}\NormalTok{roc\_curves}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## pdf 
+##   2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{save\_roc\_plot\_ggplot}\NormalTok{(}
+  \AttributeTok{fpr =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{roc\_fpr,}
+  \AttributeTok{tpr =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{roc\_tpr,}
+  \AttributeTok{auc\_value =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{auc,}
+  \AttributeTok{file\_path =}\NormalTok{ roc\_file\_ggplot,}
+  \AttributeTok{cv\_roc\_curves =}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{cv}\SpecialCharTok{$}\NormalTok{roc\_curves}
+\NormalTok{)}
+
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{include\_graphics}\NormalTok{(roc\_file)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics[width=11.11in]{workshop_outputs/roc_curve_test_seed_123}
+
+\hypertarget{threshold-sweep-mini-lab-operating-point-selection}{%
+\section{5) Threshold sweep mini-lab (operating point
+selection)}\label{threshold-sweep-mini-lab-operating-point-selection}}
+
+Now that the workflow returns held-out test probabilities
+(\texttt{results\$test\$probs}) and truth labels
+(\texttt{results\$test\$y\_true\_binary}), we can explore tradeoffs
+across thresholds.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{probs }\OtherTok{\textless{}{-}}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{probs}
+\NormalTok{y\_true }\OtherTok{\textless{}{-}}\NormalTok{ results}\SpecialCharTok{$}\NormalTok{test}\SpecialCharTok{$}\NormalTok{y\_true\_binary}
+
+\NormalTok{threshold\_grid }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{, }\FloatTok{0.95}\NormalTok{, }\AttributeTok{by =} \FloatTok{0.05}\NormalTok{)}
+
+\NormalTok{threshold\_summary }\OtherTok{\textless{}{-}} \FunctionTok{do.call}\NormalTok{(}
+\NormalTok{  rbind,}
+  \FunctionTok{lapply}\NormalTok{(threshold\_grid, }\ControlFlowTok{function}\NormalTok{(thr) \{}
+\NormalTok{    pred }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(probs }\SpecialCharTok{\textgreater{}=}\NormalTok{ thr, 1L, 0L)}
+
+\NormalTok{    tp }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(pred }\SpecialCharTok{==}\NormalTok{ 1L }\SpecialCharTok{\&}\NormalTok{ y\_true }\SpecialCharTok{==}\NormalTok{ 1L)}
+\NormalTok{    fp }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(pred }\SpecialCharTok{==}\NormalTok{ 1L }\SpecialCharTok{\&}\NormalTok{ y\_true }\SpecialCharTok{==}\NormalTok{ 0L)}
+\NormalTok{    tn }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(pred }\SpecialCharTok{==}\NormalTok{ 0L }\SpecialCharTok{\&}\NormalTok{ y\_true }\SpecialCharTok{==}\NormalTok{ 0L)}
+\NormalTok{    fn }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(pred }\SpecialCharTok{==}\NormalTok{ 0L }\SpecialCharTok{\&}\NormalTok{ y\_true }\SpecialCharTok{==}\NormalTok{ 1L)}
+
+\NormalTok{    safe\_ratio }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(num, den) }\ControlFlowTok{if}\NormalTok{ (den }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\ConstantTok{NA\_real\_} \ControlFlowTok{else}\NormalTok{ num }\SpecialCharTok{/}\NormalTok{ den}
+
+    \FunctionTok{data.frame}\NormalTok{(}
+      \AttributeTok{threshold =}\NormalTok{ thr,}
+      \AttributeTok{precision =} \FunctionTok{safe\_ratio}\NormalTok{(tp, tp }\SpecialCharTok{+}\NormalTok{ fp),}
+      \AttributeTok{sensitivity =} \FunctionTok{safe\_ratio}\NormalTok{(tp, tp }\SpecialCharTok{+}\NormalTok{ fn),}
+      \AttributeTok{specificity =} \FunctionTok{safe\_ratio}\NormalTok{(tn, tn }\SpecialCharTok{+}\NormalTok{ fp),}
+      \AttributeTok{tp =}\NormalTok{ tp, }\AttributeTok{fp =}\NormalTok{ fp, }\AttributeTok{tn =}\NormalTok{ tn, }\AttributeTok{fn =}\NormalTok{ fn}
+\NormalTok{    )}
+\NormalTok{  \})}
+\NormalTok{)}
+
+\FunctionTok{head}\NormalTok{(threshold\_summary, }\DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   threshold precision sensitivity specificity tp fp tn fn
+## 1      0.05 0.6428571         0.9   0.6666667  9  5 10  1
+## 2      0.10 0.6923077         0.9   0.7333333  9  4 11  1
+## 3      0.15 0.6923077         0.9   0.7333333  9  4 11  1
+## 4      0.20 0.6923077         0.9   0.7333333  9  4 11  1
+## 5      0.25 0.6923077         0.9   0.7333333  9  4 11  1
+## 6      0.30 0.6923077         0.9   0.7333333  9  4 11  1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{op }\OtherTok{\textless{}{-}} \FunctionTok{par}\NormalTok{(}\AttributeTok{mar =} \FunctionTok{c}\NormalTok{(}\FloatTok{4.5}\NormalTok{, }\FloatTok{4.5}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{))}
+\FunctionTok{plot}\NormalTok{(}
+\NormalTok{  threshold\_summary}\SpecialCharTok{$}\NormalTok{threshold,}
+\NormalTok{  threshold\_summary}\SpecialCharTok{$}\NormalTok{sensitivity,}
+  \AttributeTok{type =} \StringTok{"b"}\NormalTok{,}
+  \AttributeTok{pch =} \DecValTok{16}\NormalTok{,}
+  \AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{),}
+  \AttributeTok{xlab =} \StringTok{"Threshold"}\NormalTok{,}
+  \AttributeTok{ylab =} \StringTok{"Metric value"}\NormalTok{,}
+  \AttributeTok{main =} \StringTok{"Threshold tradeoffs (held{-}out test set)"}
+\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(threshold\_summary}\SpecialCharTok{$}\NormalTok{threshold, threshold\_summary}\SpecialCharTok{$}\NormalTok{specificity, }\AttributeTok{type =} \StringTok{"b"}\NormalTok{, }\AttributeTok{pch =} \DecValTok{16}\NormalTok{, }\AttributeTok{col =} \StringTok{"\#1f5a99"}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(threshold\_summary}\SpecialCharTok{$}\NormalTok{threshold, threshold\_summary}\SpecialCharTok{$}\NormalTok{precision, }\AttributeTok{type =} \StringTok{"b"}\NormalTok{, }\AttributeTok{pch =} \DecValTok{16}\NormalTok{, }\AttributeTok{col =} \StringTok{"gray30"}\NormalTok{)}
+\FunctionTok{legend}\NormalTok{(}
+  \StringTok{"bottomleft"}\NormalTok{,}
+  \AttributeTok{legend =} \FunctionTok{c}\NormalTok{(}\StringTok{"Sensitivity"}\NormalTok{, }\StringTok{"Specificity"}\NormalTok{, }\StringTok{"Precision"}\NormalTok{),}
+  \AttributeTok{col =} \FunctionTok{c}\NormalTok{(}\StringTok{"black"}\NormalTok{, }\StringTok{"\#1f5a99"}\NormalTok{, }\StringTok{"gray30"}\NormalTok{),}
+  \AttributeTok{lty =} \DecValTok{1}\NormalTok{,}
+  \AttributeTok{pch =} \DecValTok{16}\NormalTok{,}
+  \AttributeTok{bty =} \StringTok{"n"}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{BIOS226_Topic5_Supervised_Learning_Workshop_files/figure-latex/threshold-sweep-plot-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(op)}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{Prompt:} Choose a threshold for each clinical goal:
+
+\begin{itemize}
+\tightlist
+\item
+  Goal A: minimize false positives (high specificity).
+\item
+  Goal B: minimize false negatives (high sensitivity).
+\end{itemize}
+
+\hypertarget{how-to-fail-run-the-full-scenario-script}{%
+\section{6) ``How to Fail'' --- run the full scenario
+script}\label{how-to-fail-run-the-full-scenario-script}}
+
+This section reproduces the Part 3 ``How to Fail'' plots by running the
+provided script.
+
+\textbf{Note:} This chunk can take \textasciitilde1--3 minutes depending
+on your machine.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{file.exists}\NormalTok{(scenario\_path)) }\FunctionTok{stop}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(}\StringTok{"Missing script: "}\NormalTok{, scenario\_path))}
+\FunctionTok{source}\NormalTok{(scenario\_path, }\AttributeTok{chdir =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## === ROC Scenario Summary ===
+##                     scenario auc_cv_mean  auc_test auc_train
+##  0. Perfect (high n, high p)   0.9416184 0.9487847        NA
+##               1. Overfitting   0.8917884 0.9333333         1
+##              2. Underfitting   0.7765152 0.8533333        NA
+##  3. Wrong labels in training   0.2251894 0.1600000        NA
+##      4. Leakage before split   0.9612013 0.9966667        NA
+##    5. Ignore 90:10 imbalance   0.8954248 0.4523810        NA
+##                                                                                              notes
+##                                          n=240; p=8000; informative=25; noise_sd=1.5; cv_auc=0.942
+##                                                    top_k=50; cv_auc=0.892; train_vs_test_gap=0.067
+##                                                  top_k=1; cv_auc=0.777; intentionally low capacity
+##                                                            cv_auc=0.225; AUC below 0.5 as expected
+##                                        leaked_auc=0.997; safe_auc=0.933; delta=0.063; cv_auc=0.961
+##  train_counts={Basal_like:9, Luminal_A:87}; test_counts={Basal_like:3, Luminal_A:21}; cv_auc=0.895
+##                                          output_file
+##   roc_scenario_0_perfect_high_n_high_p_seed_1006.png
+##             roc_scenario_1_overfitting_seed_1201.png
+##            roc_scenario_2_underfitting_seed_1002.png
+##            roc_scenario_3_wrong_labels_seed_1003.png
+##         roc_scenario_4_feature_leakage_seed_1000.png
+##  roc_scenario_5_ignore_imbalance_90_10_seed_1005.png
+## 
+## Generated ROC files:
+##  - roc_scenario_0_perfect_high_n_high_p_seed_1006.png
+##  - roc_scenario_1_overfitting_seed_1201.png
+##  - roc_scenario_2_underfitting_seed_1002.png
+##  - roc_scenario_3_wrong_labels_seed_1003.png
+##  - roc_scenario_4_feature_leakage_seed_1000.png
+##  - roc_scenario_5_ignore_imbalance_90_10_seed_1005.png
+## Done.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{scenario\_files }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \FunctionTok{file.path}\NormalTok{(}\StringTok{"scripts"}\NormalTok{, }\StringTok{"roc\_scenario\_0\_perfect\_high\_n\_high\_p\_seed\_1006.png"}\NormalTok{),}
+  \FunctionTok{file.path}\NormalTok{(}\StringTok{"scripts"}\NormalTok{, }\StringTok{"roc\_scenario\_1\_overfitting\_seed\_1201.png"}\NormalTok{),}
+  \FunctionTok{file.path}\NormalTok{(}\StringTok{"scripts"}\NormalTok{, }\StringTok{"roc\_scenario\_2\_underfitting\_seed\_1002.png"}\NormalTok{),}
+  \FunctionTok{file.path}\NormalTok{(}\StringTok{"scripts"}\NormalTok{, }\StringTok{"roc\_scenario\_3\_wrong\_labels\_seed\_1003.png"}\NormalTok{),}
+  \FunctionTok{file.path}\NormalTok{(}\StringTok{"scripts"}\NormalTok{, }\StringTok{"roc\_scenario\_4\_feature\_leakage\_seed\_1000.png"}\NormalTok{),}
+  \FunctionTok{file.path}\NormalTok{(}\StringTok{"scripts"}\NormalTok{, }\StringTok{"roc\_scenario\_5\_ignore\_imbalance\_90\_10\_seed\_1005.png"}\NormalTok{)}
+\NormalTok{)}
+
+\NormalTok{missing\_files }\OtherTok{\textless{}{-}}\NormalTok{ scenario\_files[}\SpecialCharTok{!}\FunctionTok{file.exists}\NormalTok{(scenario\_files)]}
+\ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(missing\_files) }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{) \{}
+  \FunctionTok{cat}\NormalTok{(}\StringTok{"Some scenario images were not found. Rerun the previous chunk.}\SpecialCharTok{\textbackslash{}n\textbackslash{}n}\StringTok{Missing:}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+  \FunctionTok{cat}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(}\StringTok{"{-} "}\NormalTok{, missing\_files, }\AttributeTok{collapse =} \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{))}
+\NormalTok{\} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{  knitr}\SpecialCharTok{::}\FunctionTok{include\_graphics}\NormalTok{(scenario\_files)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics[width=17.78in]{scripts/roc_scenario_0_perfect_high_n_high_p_seed_1006}
+\includegraphics[width=17.78in]{scripts/roc_scenario_1_overfitting_seed_1201}
+\includegraphics[width=17.78in]{scripts/roc_scenario_2_underfitting_seed_1002}
+\includegraphics[width=17.78in]{scripts/roc_scenario_3_wrong_labels_seed_1003}
+\includegraphics[width=17.78in]{scripts/roc_scenario_4_feature_leakage_seed_1000}
+\includegraphics[width=17.78in]{scripts/roc_scenario_5_ignore_imbalance_90_10_seed_1005}
+
+\hypertarget{interpretation-prompts-write-12-sentences-each}{%
+\subsection{Interpretation prompts (write 1--2 sentences
+each)}\label{interpretation-prompts-write-12-sentences-each}}
+
+For each scenario:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  What do the \textbf{CV envelope} and \textbf{test ROC} suggest about
+  generalisation?
+\item
+  Which failure mode is shown (overfitting / underfitting / wrong labels
+  / leakage / imbalance)?
+\item
+  What pipeline decision caused the failure?
+\end{enumerate}
+
+\hypertarget{wrap-up-checklist}{%
+\section{7) Wrap-up checklist}\label{wrap-up-checklist}}
+
+You should now be able to answer:
+
+\begin{itemize}
+\tightlist
+\item
+  Where can leakage occur in this workflow (and how did we prevent it)?
+\item
+  Why can ROC/AUC look acceptable while the confusion matrix is
+  clinically unacceptable?
+\item
+  What changed when we altered threshold, and why is this not
+  ``cheating''?
+\end{itemize}
+
+\hypertarget{reproducibility}{%
+\section{8) Reproducibility}\label{reproducibility}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sessionInfo}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## R version 4.3.3 (2024-02-29)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 24.04.3 LTS
+## 
+## Matrix products: default
+## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.12.0 
+## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.12.0
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## time zone: Europe/London
+## tzcode source: system (glibc)
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## loaded via a namespace (and not attached):
+##  [1] vctrs_0.7.1        cli_3.6.5          knitr_1.51         rlang_1.1.7       
+##  [5] xfun_0.56          otel_0.2.0         png_0.1-8          generics_0.1.4    
+##  [9] S7_0.2.1           labeling_0.4.3     glue_1.8.0         htmltools_0.5.9   
+## [13] scales_1.4.0       rmarkdown_2.30     grid_4.3.3         tibble_3.3.1      
+## [17] evaluate_1.0.5     fastmap_1.2.0      yaml_2.3.12        lifecycle_1.0.5   
+## [21] compiler_4.3.3     dplyr_1.1.4        RColorBrewer_1.1-3 pkgconfig_2.0.3   
+## [25] farver_2.1.2       digest_0.6.39      R6_2.6.1           tidyselect_1.2.1  
+## [29] pillar_1.11.1      magrittr_2.0.4     withr_3.0.2        tools_4.3.3       
+## [33] gtable_0.3.6       ggplot2_4.0.1
+\end{verbatim}
+
+\end{document}

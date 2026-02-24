@@ -1,0 +1,689 @@
+---
+title: "BIOS226 Topic 5 — Supervised Learning Workshop"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+# Learning objectives
+
+By the end of this Topic 5 session, you should be able to:
+
+- Recognise an R Markdown (`.Rmd`) workbook and run or edit code blocks in RStudio.
+- Generate a synthetic labelled breast cancer dataset for supervised learning practice.
+- Explain the Topic 5 workflow: train/test split, cross-validation, and train-only feature selection.
+- Run a complete leakage-safe classification pipeline and identify the positive class setting.
+- Interpret key outputs from the pipeline, including confusion matrix, ROC/AUC, and threshold effects.
+
+# Setup for Topic 5 (start here)
+
+## Step 1: Create a new R project
+
+1. Open RStudio.
+2. Go to `File > New Project...`.
+3. Choose `New Directory` > `New Project`.
+4. Name the project **Topic5** and choose where to save it.
+5. Click **Create Project**.
+
+RStudio will open a new session with the **Topic5** project as the working directory. Everything in this workshop will run from that project folder.
+
+## Step 2: Download the required files
+
+Download these three files from GitHub and place them directly inside your **Topic5** project folder:
+
+- `BIOS226_Topic5_Supervised_Learning_Workshop.Rmd`
+  https://github.com/rtreharne/BIOS226/blob/main/week_5/BIOS226_Topic5_Supervised_Learning_Workshop.Rmd
+- `generate_tumor_dataset.R`
+  https://github.com/rtreharne/BIOS226/blob/main/week_5/scripts/generate_tumor_dataset.R
+- `model_workflow_helpers.R`
+  https://github.com/rtreharne/BIOS226/blob/main/week_5/scripts/model_workflow_helpers.R
+
+In GitHub, click **Download raw file** (or right-click **Raw** and save) for each file.
+
+## Step 3: Check your project folder
+
+1. In RStudio, look in the Files pane and confirm these three files are inside your **Topic5** project folder.
+2. Stop here for now. We will open the notebook and start running code in class.
+
+---
+
+# File overview
+
+Below is a short description of each file in this starter pack.
+
+For the two `.R` script files, you are not expected to understand the internal code. They are provided so you can generate datasets and run the analysis without writing much extra code.
+
+- `BIOS226_Topic5_Supervised_Learning_Workshop.Rmd`
+  This is the main workshop notebook. The `.Rmd` file was used to generate the `.html` document you are reading now. When you open the `.Rmd` in RStudio, you can run the code blocks inside it. Click the green play button on the right side of a code block (or press `Ctrl+Shift+Enter` / `Cmd+Shift+Enter`). Output appears under the block. You can change values, re-run the block, and see the results immediately.
+
+- `generate_tumor_dataset.R`
+  This script creates a synthetic tumor dataset for practice. It lets you choose settings like sample size and noise, then builds a dataset for you.
+
+- `model_workflow_helpers.R`
+  This script contains helper functions for the supervised learning pipeline. It handles tasks like data splitting, model training, and evaluation so you do not need to build those steps from scratch.
+
+---
+
+# Workshop sections
+
+## 1) Post-Lecture Quiz
+
+Before starting the workshop, complete the auto-generated MCQ here:
+
+https://autoviva.ninepointeightone.com/app/join/e4fk1GKJ5eWD7a9aFuD8Inwl7Q5dJJ7m/
+
+Target score: **100%**. You can retry as many times as needed until you reach full marks.
+
+## 2) Data generation: build a synthetic labelled breast cancer dataset
+
+In this section, we will source the data-generation script and create one dataset in a data frame called `df`.
+
+Use `seed = 123` for now. Later, you will replace this with your own student ID.
+
+```{r part2-generate-dataset}
+# Load the data-generation function into this R session
+source("generate_tumor_dataset.R")
+
+# Generate a reproducible synthetic dataset
+df <- generate_tumor_dataset(
+  seed = 123,
+  n_samples = 120,
+  n_genes = 10000,
+  n_informative = 50,
+  class_proportion = 0.6,
+  noise_sd = 1.5
+)
+
+# Quick check: rows and columns
+dim(df)
+```
+
+If your code runs successfully, `df` is now available in your Environment pane.
+
+It is always good practice to inspect your data before modelling. The next code block will:
+
+- create a small preview `data.frame` so you can check structure and values,
+- create a class-balance `data.frame` for `Subtype`,
+- count how many gene columns were created.
+
+You should see both `data.frame` objects printed directly under the code chunk. This is one of the strengths of `.Rmd`: your code and outputs stay together in one interactive document.
+
+```{r part2-inspect-dataset}
+# Create a small preview data frame
+df_preview <- head(df[, 1:8])
+df_preview
+
+# Create class balance as a data frame
+class_balance_df <- as.data.frame(table(df$Subtype))
+names(class_balance_df) <- c("Subtype", "Count")
+class_balance_df
+
+# Count gene columns
+gene_cols <- grep("^Gene_", names(df), value = TRUE)
+length(gene_cols)
+```
+
+### Interpreting gene values
+
+The `Gene_*` columns contain **synthetic expression-like values**, not raw sequencing counts from real patients.
+
+Some values are negative because this simulated dataset is designed to behave like data that has already been transformed and centred (for example, log-scale values after centring/scaling). On this type of scale, values can be above or below zero.
+
+In other words, major preprocessing is already built into the simulation. You do **not** need to run raw-count normalisation steps here (for example library-size normalisation), because the generator already outputs analysis-ready, normalized-like numeric features for teaching purposes.
+
+For future work with real sequencing datasets, you will need to handle normalisation carefully, as covered in Weeks 3 and 4 (Rob Morris). For today, using this synthetic dataset, that step is already handled for you (phew!).
+
+## 3) Data checks: inspect class balance and feature structure
+
+Before training any model, we should do a quick data quality check.
+
+Why this matters:
+
+- if the target column is missing, the workflow cannot run;
+- if classes are very imbalanced, accuracy can be misleading;
+- if features are missing or non-numeric, many models will fail or behave unpredictably.
+
+Run the block below and read each output carefully.
+
+```{r part3-data-checks}
+# 1) Basic shape of the data
+print("1) Data dimensions (rows, columns):")
+print(dim(df))
+
+# 2) Confirm the target column exists
+print("2) Does the target column 'Subtype' exist?")
+print("Subtype" %in% names(df))
+
+# 3) Check class counts and proportions
+class_counts <- table(df$Subtype)
+print("3a) Class counts:")
+print(class_counts)
+print("3b) Class proportions:")
+print(round(prop.table(class_counts), 3))
+
+# 4) Confirm gene feature columns are present
+gene_cols <- grep("^Gene_", names(df), value = TRUE)
+print("4) Number of gene feature columns:")
+print(length(gene_cols))
+
+# 5) Confirm gene columns are numeric
+all_genes_numeric <- all(sapply(df[, gene_cols], is.numeric))
+print("5) Are all gene columns numeric?")
+print(all_genes_numeric)
+
+# 6) Check for missing values
+print("6) Total number of missing values:")
+print(sum(is.na(df)))
+```
+
+How to interpret this output:
+
+- `dim(df)` should show the expected number of rows (samples) and columns (metadata + genes).
+- `"Subtype" %in% names(df)` should return `TRUE`.
+- Class proportions should not be extremely one-sided for this exercise.
+- `length(gene_cols)` should match your chosen number of genes from generation.
+- `all_genes_numeric` should be `TRUE`.
+- `sum(is.na(df))` should be `0` for this synthetic dataset. There should be no missing data!
+
+## 4) Train/test split and leakage-safe workflow
+
+This is the key anti-leakage step.  
+We split once into training and test sets, keep class proportions similar, and confirm zero overlap between sets.
+
+```{r part4-train-test-split}
+# Load helper functions
+source("model_workflow_helpers.R")
+
+# Settings for this split
+positive_class <- "Basal_like"
+train_fraction <- 0.8
+split_seed <- 123
+
+# Prepare model-ready data (X matrix + labels)
+data_parts <- prepare_model_data(df, positive_class = positive_class)
+
+# Stratified split: preserves class balance in train/test
+split_idx <- make_stratified_split(
+  labels = data_parts$labels,
+  train_frac = train_fraction,
+  split_seed = split_seed
+)
+
+train_idx <- split_idx$train
+test_idx <- split_idx$test
+
+# Save train/test labels for quick checks
+labels_train <- data_parts$labels[train_idx]
+labels_test <- data_parts$labels[test_idx]
+
+# Compact split summary
+split_summary <- data.frame(
+  set = c("train", "test"),
+  n = c(length(train_idx), length(test_idx)),
+  basal_like_prop = c(
+    round(mean(labels_train == positive_class), 3),
+    round(mean(labels_test == positive_class), 3)
+  )
+)
+split_summary
+
+# Leakage check: train/test must be disjoint
+length(intersect(train_idx, test_idx))
+
+# Required: save these objects for the next sections
+X_train <- data_parts$X_all[train_idx, , drop = FALSE]
+X_test <- data_parts$X_all[test_idx, , drop = FALSE]
+y_train_binary <- data_parts$y_all_binary[train_idx]
+y_test_binary <- data_parts$y_all_binary[test_idx]
+```
+
+What these variables hold:
+
+- `train_idx`: row indices for samples assigned to the training set.
+- `test_idx`: row indices for samples assigned to the test set.
+- `labels_train`: original class labels (`Luminal_A` / `Basal_like`) for training samples.
+- `labels_test`: original class labels for test samples.
+- `X_train`: training feature matrix (rows = training samples, columns = gene features).
+- `X_test`: test feature matrix (rows = test samples, columns = the same gene features).
+- `y_train_binary`: training labels in binary form (`1` = positive class, `0` = negative class).
+- `y_test_binary`: test labels in binary form, used for final unbiased evaluation.
+
+How to interpret this output:
+
+- `split_summary$n` should add up to the full dataset size.
+- `split_summary$basal_like_prop` should be similar for train and test.
+- The final leakage check should return `0`.
+
+Important: we have **not** selected features, scaled data, or fitted a model yet. That happens next, using training data only.
+
+## 5) Cross-validation and feature selection (training data only)
+
+Now we estimate model performance inside the training set using cross-validation (CV).
+
+Why CV is important:
+
+- it gives a more stable estimate than one single train/validation split;
+- each sample in the training set gets a turn in validation;
+- we still do not touch the held-out test set.
+
+Why feature selection is here:
+
+- we have thousands of gene columns, so we keep the top `k` informative genes;
+- in CV, feature selection is done inside each fold using only that fold's training subset;
+- this avoids leakage from validation data into training decisions.
+
+### Important note: scaling is happening in the helper code
+
+You do not see a separate scaling step in the chunk above because scaling is already built into `model_workflow_helpers.R`.
+
+Where to look:
+
+- `fit_scaler(...)` calculates one mean and one standard deviation for each selected gene (from training data only).
+- `apply_scaler(...)` applies the transformation to each value:
+  `(value - training_mean) / training_sd`.
+
+This means each selected gene is placed on a comparable scale (roughly centered around 0, with unit spread).
+
+Why this is important:
+
+- Gene features can have different ranges. Without scaling, large-range genes can dominate model fitting.
+- Logistic regression is more numerically stable when predictors are on similar scales.
+- Coefficients become easier to compare because they are not driven by raw unit size alone.
+
+Why this is leakage-safe:
+
+- In each CV fold, scaling parameters are fitted on fold-training data only, then applied to fold-validation data.
+- In final model training, scaling is fitted on the full training set only, then applied to the held-out test set.
+
+So yes: scaling is definitely happening, and it is happening in the correct place.
+
+```{r part5-cv-feature-selection}
+# Settings for cross-validation and feature selection
+k_folds <- 5
+top_k_genes <- 25
+threshold <- 0.85
+cv_seed <- 123
+
+# Run stratified CV on training data only.
+# Inside each fold, the helper function:
+# 1) selects top genes from the fold-training data only,
+# 2) scales using fold-training statistics only,
+# 3) fits logistic regression,
+# 4) evaluates on fold-validation data.
+cv_results <- run_cv_on_training(
+  X_train = X_train,
+  y_train_binary = y_train_binary,
+  labels_train = labels_train,
+  k_folds = k_folds,
+  top_k_genes = top_k_genes,
+  threshold = threshold,
+  seed = cv_seed
+)
+
+# Fold-level metrics
+cv_results$auc_values
+cv_results$precision_values
+
+# Mean and variability across folds
+data.frame(
+  metric = c("AUC", "Precision"),
+  mean = c(cv_results$auc_mean, cv_results$precision_mean),
+  sd = c(cv_results$auc_sd, cv_results$precision_sd)
+)
+
+# After CV, select one final feature set using the full training set only.
+# This gene list is used for the final model in later sections.
+selected_genes_final <- select_top_genes(X_train, y_train_binary, top_k_genes)
+length(selected_genes_final)
+head(selected_genes_final, 10)
+```
+
+How to interpret this output:
+
+- `auc_values` and `precision_values` show performance in each fold.
+- **AUC** (Area Under the ROC Curve) measures how well the model ranks positive cases above negative cases across all thresholds. `1.0` is perfect ranking; `0.5` is random guessing.
+- **Precision** is the proportion of predicted positives that are truly positive: `TP / (TP + FP)`. High precision means fewer false positives among positive predictions.
+- Means summarize typical CV performance; SD shows stability across folds.
+- `selected_genes_final` is the final train-only feature set for the next steps.
+
+Important: the test set is still untouched.
+
+### Visual check: CV ROC curves
+
+```{r part5-cv-roc-plot}
+# Plot all CV ROC curves on one figure
+old_pty <- par("pty")
+par(pty = "s")
+
+plot(
+  c(0, 1), c(0, 1),
+  type = "n",
+  xlim = c(0, 1),
+  ylim = c(0, 1),
+  xaxs = "i",
+  yaxs = "i",
+  xaxt = "n",
+  yaxt = "n",
+  xlab = "False Positive Rate",
+  ylab = "True Positive Rate",
+  main = "Cross-validation ROC curves (training set only)"
+)
+axis(1, at = seq(0, 1, by = 0.2), labels = format(seq(0, 1, by = 0.2), nsmall = 1))
+axis(2, at = seq(0, 1, by = 0.2), labels = format(seq(0, 1, by = 0.2), nsmall = 1), las = 1)
+abline(0, 1, lty = 2, col = "gray60")
+
+fold_cols <- grDevices::hcl.colors(length(cv_results$roc_curves), "Dark 3")
+
+for (i in seq_along(cv_results$roc_curves)) {
+  lines(
+    cv_results$roc_curves[[i]]$fpr,
+    cv_results$roc_curves[[i]]$tpr,
+    col = fold_cols[i],
+    lwd = 2
+  )
+}
+
+legend(
+  "bottomright",
+  legend = paste0("Fold ", seq_along(cv_results$roc_curves)),
+  col = fold_cols,
+  lwd = 2,
+  bty = "n"
+)
+
+par(pty = old_pty)
+```
+
+Discussion prompt:
+
+- If curves are tightly grouped, model performance is relatively stable across folds.
+- If curves vary widely, performance depends strongly on which samples are in each fold.
+- Curves near the diagonal suggest weak ranking performance.
+
+Example interpretation for a plot like yours:
+
+- Overall, this looks **good** rather than bad: most fold curves are well above the diagonal, so ranking performance is clearly better than random.
+- One fold may look weaker than the others, which suggests some fold-to-fold variability.
+- Step-like ROC shapes are expected here because each validation fold is relatively small, so ROC points move in bigger jumps.
+- Conclusion: the CV result is promising, but not perfect. We still need the final held-out test evaluation before making claims about generalisation.
+
+## 6) Aside - Logistic regression: model idea and interpretation
+
+In this workshop, logistic regression is the classifier used inside each fold and in the final model.
+
+Short reminder:
+
+- logistic regression predicts a probability between 0 and 1 for the positive class;
+- we convert probability to class using a threshold (for example, `0.85`);
+- coefficients indicate direction and strength of association (after feature selection/scaling choices).
+
+Watch this Video:
+
+[Logistic Regression - extra explainer video](https://www.youtube.com/watch?v=yIYKR4sgzI8)
+
+### Classification vs regression (important distinction)
+
+- **Classification models** predict a category (for example `Basal_like` vs `Luminal_A`).
+- **Regression models** predict a continuous numeric value (for example tumor size, survival time, or expression level), using models such as linear regression, ridge/lasso regression, or random forest regression.
+
+In this workshop, the outcome is a class label, so we use a **classification** model (logistic regression).
+
+Yes, the name can feel confusing: **logistic regression** is a classifier, not a continuous-outcome regression model. Here it belongs to a classification pipeline, so do not confuse it with supervised learning pipelines for numeric regression targets.
+
+### Other common models and contexts
+
+- **Linear regression** (regression): use when the target is continuous and relationships are roughly linear.
+- **Random forest** (classification or regression): useful when non-linear patterns and feature interactions are likely.
+- **Support Vector Machine (SVM)** (mainly classification): useful for high-dimensional settings such as omics, with tuning.
+- **k-Nearest Neighbors (kNN)** (classification or regression): simple baseline; works best with well-scaled data.
+- **Gradient boosting** (classification or regression): often strong predictive performance on tabular data, but usually less interpretable.
+
+Model choice depends on outcome type, data size, interpretability needs, and whether your priority is explanation or prediction.
+
+## 7) Train the model and generate predictions
+
+To keep this section simple, we use a dedicated helper for final test-set modeling (parallel to the CV helper style).
+
+```{r part7-final-model-and-predictions}
+# Reload helper functions so this chunk works even if run independently
+source("model_workflow_helpers.R")
+
+# Define class labels and threshold
+threshold <- 0.85
+negative_class <- setdiff(unique(c(labels_train, labels_test)), positive_class)
+
+# Run final train->test helper (no CV here)
+test_results <- run_final_on_test_set(
+  X_train = X_train,
+  X_test = X_test,
+  y_train_binary = y_train_binary,
+  y_test_binary = y_test_binary,
+  top_k_genes = top_k_genes,
+  positive_class = positive_class,
+  negative_class = negative_class,
+  threshold = threshold
+)
+
+# Keep key objects for later sections
+final_model <- test_results$final_model
+test_probs <- test_results$probs
+test_pred_binary <- ifelse(test_probs >= threshold, 1L, 0L)
+
+# Quick checks of prediction outputs
+summary(test_probs)
+table(predicted = test_pred_binary, observed = y_test_binary)
+```
+
+What we have at this point:
+
+- `final_model`: trained final logistic regression model.
+- `test_probs`: predicted probability of the positive class for each test sample.
+- `test_pred_binary`: predicted class at the chosen threshold.
+
+Next, we evaluate these predictions formally using confusion matrix, ROC, and AUC.
+
+## 8) Evaluate model performance: confusion matrix, ROC, and AUC
+
+This section answers two key questions:
+
+- How well does the model rank positives above negatives? (ROC/AUC)
+- At the chosen threshold, what mistakes does it make? (confusion matrix)
+
+### Figure 1: Combined ROC plot (CV + held-out test)
+
+```{r part8-combined-roc}
+# Build a combined ROC figure:
+# - CV fold curves (thin lines)
+# - CV mean ROC (dashed)
+# - held-out test ROC (thick line)
+old_pty <- par("pty")
+par(pty = "s")
+
+plot(
+  c(0, 1), c(0, 1),
+  type = "n",
+  xlim = c(0, 1),
+  ylim = c(0, 1),
+  xaxs = "i",
+  yaxs = "i",
+  xaxt = "n",
+  yaxt = "n",
+  xlab = "False Positive Rate",
+  ylab = "True Positive Rate",
+  main = "ROC comparison: CV folds + CV mean + held-out test"
+)
+axis(1, at = seq(0, 1, by = 0.2), labels = format(seq(0, 1, by = 0.2), nsmall = 1))
+axis(2, at = seq(0, 1, by = 0.2), labels = format(seq(0, 1, by = 0.2), nsmall = 1), las = 1)
+abline(0, 1, lty = 2, col = "gray60")
+
+# CV mean ROC and +/- 1 SD envelope (interpolated from fold curves)
+cv_summary <- summarize_cv_roc_curves(cv_results$roc_curves)
+polygon(
+  x = c(cv_summary$fpr_grid, rev(cv_summary$fpr_grid)),
+  y = c(cv_summary$upper_tpr, rev(cv_summary$lower_tpr)),
+  col = grDevices::adjustcolor("#1f4e79", alpha.f = 0.20),
+  border = NA
+)
+lines(cv_summary$fpr_grid, cv_summary$mean_tpr, col = "#1f4e79", lwd = 3, lty = 2)
+
+# Held-out test ROC
+lines(test_results$roc_fpr, test_results$roc_tpr, col = "#d95f02", lwd = 3.5)
+
+legend(
+  "bottomright",
+  legend = c(
+    "Reference (random)",
+    "CV envelope (mean +/- 1 SD)",
+    paste0("CV mean (AUC=", format(round(cv_summary$mean_auc, 3), nsmall = 3), ")"),
+    paste0("Held-out test (AUC=", format(round(test_results$auc, 3), nsmall = 3), ")")
+  ),
+  col = c("gray60", "#1f4e79", "#1f4e79", "#d95f02"),
+  lty = c(2, 1, 2, 1),
+  lwd = c(1, 8, 3, 3.5),
+  bty = "n"
+)
+
+par(pty = old_pty)
+```
+
+Interpretation:
+
+- The shaded blue band shows the CV variability envelope (mean +/- 1 SD) across folds.
+- The dashed dark-blue line is the mean CV ROC.
+- The thick orange line is the true held-out test ROC and is the most important generalization check.
+- If the test ROC sits near the CV mean and mostly within the envelope, performance is consistent and likely generalizes reasonably.
+- If the test ROC drops far below CV, this suggests overfitting or optimistic CV estimates.
+
+Interpretation for this specific ROC shown above:
+
+- In this run, CV mean AUC is about `0.930` and held-out test AUC is about `0.863`.
+- This is still strong discrimination on the test set (well above `0.5`, which is random), so the model is useful.
+- The drop from CV to test (`~0.067`) suggests mild optimism in CV performance, which is common with high-dimensional data.
+- The test ROC stays clearly above the diagonal and follows the same general shape as CV, so there is no sign of model collapse.
+- Practical takeaway: performance looks good, but report both CV and held-out test values and treat test AUC as the primary estimate for generalization.
+
+### Figure 2: Confusion matrix at the chosen threshold
+
+```{r part8-build-truth-table}
+# Build the truth table explicitly from test predictions and true labels
+pred_labels <- ifelse(test_pred_binary == 1L, positive_class, negative_class)
+actual_labels <- ifelse(y_test_binary == 1L, positive_class, negative_class)
+
+# Use fixed class order so rows/columns are consistent
+truth_table <- table(
+  Predicted = factor(pred_labels, levels = c(negative_class, positive_class)),
+  Actual = factor(actual_labels, levels = c(negative_class, positive_class))
+)
+
+truth_table
+```
+
+```{r part8-confusion-matrix-plot}
+# Plot the truth table as a square heat map
+mat <- as.matrix(truth_table)
+max_count <- max(mat)
+heat_cols <- colorRampPalette(c("#eef4fb", "#1f5a99"))(100)
+
+scale_idx <- function(value) {
+  if (max_count == 0) return(1)
+  min(100, max(1, floor((value / max_count) * 99) + 1))
+}
+
+old_pty <- par("pty")
+old_mar <- par("mar")
+par(pty = "s", mar = c(5, 5, 3, 1))
+
+plot(
+  c(0, 2), c(0, 2),
+  type = "n",
+  xaxt = "n", yaxt = "n",
+  xlab = "Actual class",
+  ylab = "Predicted class",
+  main = "Truth table heat map"
+)
+
+for (i in seq_len(2)) {
+  for (j in seq_len(2)) {
+    x_left <- j - 1
+    x_right <- j
+    y_bottom <- 2 - i
+    y_top <- 3 - i
+    value <- mat[i, j]
+    cell_col <- heat_cols[scale_idx(value)]
+
+    rect(x_left, y_bottom, x_right, y_top, col = cell_col, border = "white", lwd = 2)
+    text_col <- if (max_count > 0 && (value / max_count) > 0.6) "white" else "black"
+    text(x_left + 0.5, y_bottom + 0.5, labels = value, cex = 1.5, font = 2, col = text_col)
+  }
+}
+
+axis(1, at = c(0.5, 1.5), labels = colnames(mat))
+axis(2, at = c(1.5, 0.5), labels = rownames(mat), las = 1)
+box()
+
+par(pty = old_pty, mar = old_mar)
+```
+
+
+Interpretation:
+
+- Counts are `TN = 12`, `FN = 1`, `FP = 3`, `TP = 9` (total test samples = `25`).
+- Accuracy is `(TP + TN) / total = (9 + 12) / 25 = 0.84` (84%).
+- For `Basal_like` as the positive class:
+  - Precision is `TP / (TP + FP) = 9 / 12 = 0.75` (75%).
+  - Sensitivity (recall) is `TP / (TP + FN) = 9 / 10 = 0.90` (90%).
+  - Specificity is `TN / (TN + FP) = 12 / 15 = 0.80` (80%).
+
+Good or bad?
+
+- Overall this is **good** performance for a first-pass model: strong sensitivity, decent specificity, and reasonable precision.
+- The main weakness is `FP = 3`, meaning some `Luminal_A` samples were called `Basal_like`.
+- In practice, whether this is acceptable depends on clinical cost: if missing `Basal_like` is worse, this operating point is quite sensible.
+
+## 9) Threshold tuning and clinical trade-offs
+
+In this workshop we used a relatively high threshold (`0.85`) instead of the default `0.50`.
+
+Why?  
+Because a positive call (`Basal_like`) may lead to a serious treatment decision (for example chemotherapy).  
+We therefore want stronger evidence before predicting positive, to reduce false positives.
+
+- Moving from `0.50` to `0.85` usually reduces `FP` (fewer unnecessary positive calls).
+- This often improves specificity and may improve precision.
+- The cost is usually higher `FN` (more missed positives), so sensitivity can fall.
+- This is not cheating and not retraining: the model is unchanged; only the decision rule changed.
+
+Clinical framing for this module:
+
+- A higher threshold is reasonable when false positives carry high downstream cost (for example overtreatment and unnecessary chemotherapy exposure).
+- A lower threshold is reasonable when missing a true positive is considered more harmful.
+- There is no single perfect threshold; it should match the clinical objective and risk tolerance.
+
+## 10) Wrap-up and key takeaways
+
+You have now completed the core Topic 5 supervised learning workflow.
+
+What you have done:
+
+- Generated a synthetic labelled breast cancer dataset.
+- Performed leakage-safe train/test splitting.
+- Used cross-validation and train-only feature selection.
+- Trained a logistic regression classifier and produced held-out test predictions.
+- Interpreted ROC/AUC and confusion-matrix outputs.
+- Explored why threshold choice changes clinical trade-offs.
+
+Final interpretation checklist:
+
+- Is held-out test AUC clearly above `0.5`?
+- Is test performance reasonably close to CV performance?
+- At your chosen threshold, are `FP` and `FN` acceptable for the clinical context?
+- Can you explain why threshold tuning is a decision-policy change, not model retraining?
+
+Key message:
+
+Good machine learning practice is not only about getting a high metric. It is about building an honest, leakage-safe pipeline and choosing an operating threshold that matches real clinical consequences.
+
+Extension for later:
+
+Stress testing (changing noise, signal strength, and class balance) will be completed as a follow-up exercise.
