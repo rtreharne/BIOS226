@@ -1,5 +1,6 @@
 ---
 title: "BIOS226 Topic 5 — Supervised Learning Workshop"
+author: R. Treharne
 output:
   html_document:
     df_print: paged
@@ -32,12 +33,9 @@ RStudio will open a new session with the **Topic5** project as the working direc
 
 Download these three files from GitHub and place them directly inside your **Topic5** project folder:
 
-- `BIOS226_Topic5_Supervised_Learning_Workshop.Rmd`
-  https://github.com/rtreharne/BIOS226/blob/main/week_5/BIOS226_Topic5_Supervised_Learning_Workshop.Rmd
-- `generate_tumor_dataset.R`
-  https://github.com/rtreharne/BIOS226/blob/main/week_5/scripts/generate_tumor_dataset.R
-- `model_workflow_helpers.R`
-  https://github.com/rtreharne/BIOS226/blob/main/week_5/scripts/model_workflow_helpers.R
+- [`BIOS226_Topic5_Supervised_Learning_Workshop.Rmd`](https://github.com/rtreharne/BIOS226/blob/main/week_5/BIOS226_Topic5_Supervised_Learning_Workshop.Rmd)
+- [`generate_tumor_dataset.R`](https://github.com/rtreharne/BIOS226/blob/main/week_5/scripts/generate_tumor_dataset.R)
+- [`model_workflow_helpers.R`](https://github.com/rtreharne/BIOS226/blob/main/week_5/scripts/model_workflow_helpers.R)
 
 In GitHub, click **Download raw file** (or right-click **Raw** and save) for each file.
 
@@ -71,7 +69,7 @@ For the two `.R` script files, you are not expected to understand the internal c
 
 Before starting the workshop, complete the auto-generated MCQ here:
 
-https://autoviva.ninepointeightone.com/app/join/e4fk1GKJ5eWD7a9aFuD8Inwl7Q5dJJ7m/
+[https://autoviva.ninepointeightone.com/app/join/e4fk1GKJ5eWD7a9aFuD8Inwl7Q5dJJ7m/](https://autoviva.ninepointeightone.com/app/join/e4fk1GKJ5eWD7a9aFuD8Inwl7Q5dJJ7m/){target="_blank" rel="noopener noreferrer"}
 
 Target score: **100%**. You can retry as many times as needed until you reach full marks.
 
@@ -148,32 +146,21 @@ Run the block below and read each output carefully.
 
 ```{r part3-data-checks}
 # 1) Basic shape of the data
-print("1) Data dimensions (rows, columns):")
 print(dim(df))
 
 # 2) Confirm the target column exists
-print("2) Does the target column 'Subtype' exist?")
 print("Subtype" %in% names(df))
 
 # 3) Check class counts and proportions
 class_counts <- table(df$Subtype)
-print("3a) Class counts:")
 print(class_counts)
-print("3b) Class proportions:")
-print(round(prop.table(class_counts), 3))
 
 # 4) Confirm gene feature columns are present
 gene_cols <- grep("^Gene_", names(df), value = TRUE)
-print("4) Number of gene feature columns:")
 print(length(gene_cols))
 
-# 5) Confirm gene columns are numeric
-all_genes_numeric <- all(sapply(df[, gene_cols], is.numeric))
-print("5) Are all gene columns numeric?")
-print(all_genes_numeric)
 
-# 6) Check for missing values
-print("6) Total number of missing values:")
+# 5) Check for missing values
 print(sum(is.na(df)))
 ```
 
@@ -183,8 +170,7 @@ How to interpret this output:
 - `"Subtype" %in% names(df)` should return `TRUE`.
 - Class proportions should not be extremely one-sided for this exercise.
 - `length(gene_cols)` should match your chosen number of genes from generation.
-- `all_genes_numeric` should be `TRUE`.
-- `sum(is.na(df))` should be `0` for this synthetic dataset. There should be no missing data!
+- `sum(is.na(df))` should be `0` for this synthetic dataset. There should be no missing data! But that's not always the case.
 
 ## 4) Train/test split and leakage-safe workflow
 
@@ -420,7 +406,7 @@ Short reminder:
 
 Watch this Video:
 
-[Logistic Regression - extra explainer video](https://www.youtube.com/watch?v=yIYKR4sgzI8)
+[Logistic Regression In 3 Mins](https://www.youtube.com/watch?v=EKm0spFxFG4)
 
 ### Classification vs regression (important distinction)
 
@@ -662,8 +648,6 @@ Clinical framing for this module:
 
 ## 10) Wrap-up and key takeaways
 
-You have now completed the core Topic 5 supervised learning workflow.
-
 What you have done:
 
 - Generated a synthetic labelled breast cancer dataset.
@@ -682,8 +666,8 @@ Final interpretation checklist:
 
 Key message:
 
-Good machine learning practice is not only about getting a high metric. It is about building an honest, leakage-safe pipeline and choosing an operating threshold that matches real clinical consequences.
+Good supervised learning practice is not only about getting a high metric. It is about building an honest, leakage-safe pipeline and choosing an operating threshold that matches real clinical consequences.
 
-Extension for later:
+# What Next?
 
-Stress testing (changing noise, signal strength, and class balance) will be completed as a follow-up exercise.
+Complete the worksheet for this workshop and submit it as portfolio evidence.

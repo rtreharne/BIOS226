@@ -1,0 +1,165 @@
+---
+title: "BIOS226 Topic 5 — Parameter Exploration Worksheet"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+# Purpose
+
+Use `run_tumor_model_quick.R` to explore how **data generation** and **model parameters** change classification performance.
+
+This worksheet is designed for hands-on experimentation and short written interpretation.
+
+# Before You Start
+
+1. Open `run_tumor_model_quick.R` in your **Topic5** project folder.
+2. Set both seeds to your own student ID:
+   - `data_seed <- <your_student_id>`
+   - `model_seed <- <your_student_id>`
+3. Keep your student ID seeds for all runs unless a question explicitly asks you to change them.
+
+Using your own student ID as seed makes your dataset and split reproducible and unique to you.
+
+# Quick Run Pattern
+
+For each question:
+
+1. Edit parameters in `run_tumor_model_quick.R`.
+2. Re-run:
+
+```{r eval=FALSE}
+source("run_tumor_model_quick.R")
+```
+
+3. Read results from:
+   - ROC plot (test curve, random line, CV envelope)
+   - truth table plot
+   - `results` object in the Environment
+
+Optional helper chunk to extract metrics:
+
+```{r eval=FALSE}
+safe_ratio <- function(num, den) if (den == 0) NA_real_ else num / den
+tp <- results$test$tp
+tn <- results$test$tn
+fp <- results$test$fp
+fn <- results$test$fn
+
+sensitivity <- safe_ratio(tp, tp + fn)
+precision <- safe_ratio(tp, tp + fp)
+accuracy <- safe_ratio(tp + tn, tp + tn + fp + fn)
+
+data.frame(
+  test_auc = results$test$auc,
+  tp = tp, tn = tn, fp = fp, fn = fn,
+  sensitivity = sensitivity,
+  precision = precision,
+  accuracy = accuracy
+)
+```
+
+# Questions (Answer All 10)
+
+## Q1. Baseline with your student ID seeds
+
+Run with default parameters (except replacing seeds with your student ID).  
+Report:
+
+- Test AUC
+- TP, TN, FP, FN
+- Sensitivity, Precision, Accuracy
+
+Briefly describe the ROC shape and where the test curve sits relative to the random line.
+
+## Q2. Threshold trade-off
+
+Keep all settings fixed. Run three thresholds: `0.30`, `0.50`, `0.80`.
+
+For each threshold, record TP/TN/FP/FN, Sensitivity, and Precision.  
+Which threshold gives the best balance for this dataset, and why?
+
+## Q3. Class imbalance
+
+Keep seeds fixed. Compare:
+
+- `class_proportion <- 0.5`
+- `class_proportion <- 0.8`
+
+How do confusion matrix counts and Precision/Sensitivity change?  
+Is AUC affected as strongly as threshold-based metrics?
+
+## Q4. Noise level
+
+Keep everything else fixed and compare:
+
+- `noise_sd <- 0.8`
+- `noise_sd <- 2.0`
+
+What happens to ROC AUC and error types (FP/FN) as noise increases?
+
+## Q5. Number of informative genes
+
+Keep `n_genes` fixed and compare:
+
+- `n_informative <- 10`
+- `n_informative <- 100`
+
+How does increasing true signal features affect model discrimination?
+
+## Q6. Sample size
+
+Keep class proportion and noise fixed. Compare:
+
+- `n_samples <- 80`
+- `n_samples <- 240`
+
+How do metric stability and ROC smoothness change with sample size?
+
+## Q7. Feature dimensionality (p >> n stress)
+
+Keep `n_informative` fixed and compare:
+
+- `n_genes <- 2000`
+- `n_genes <- 20000`
+
+Does high dimensionality hurt test performance under this workflow, or is performance mostly preserved?
+
+## Q8. Top-k selected genes
+
+Keep data settings fixed. Compare:
+
+- `top_k_genes <- 10`
+- `top_k_genes <- 25`
+- `top_k_genes <- 100`
+
+Which value performs best for your student-ID dataset?  
+Give one reason based on bias/variance or signal-to-noise thinking.
+
+## Q9. Number of CV folds
+
+Keep everything else fixed. Compare:
+
+- `k_folds <- 3`
+- `k_folds <- 5`
+- `k_folds <- 10`
+
+Inspect the CV envelope on the ROC plot.  
+How does fold choice affect the apparent stability of CV performance?
+
+## Q10. Reproducibility and personalization check
+
+1. Re-run once with exactly the same settings and your student ID seeds.  
+2. Then change both seeds to `student_id + 1` and re-run.
+
+What stayed identical in run 1 vs run 2, and what changed after updating seeds?  
+Explain in 2-4 sentences why seed control is important in model comparison.
+
+# Submission Prompt
+
+In your submission, include:
+
+- A short table of your key runs (parameter changes + metrics).
+- Direct answers to Q1-Q10.
+- One final paragraph: which parameter had the largest practical impact on your model quality, and why?
