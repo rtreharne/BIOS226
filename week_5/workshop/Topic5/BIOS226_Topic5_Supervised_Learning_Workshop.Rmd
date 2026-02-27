@@ -34,8 +34,8 @@ RStudio will open a new session with the **Topic5** project as the working direc
 Download these three files from GitHub and place them directly inside your **Topic5** project folder:
 
 - [`BIOS226_Topic5_Supervised_Learning_Workshop.Rmd`](https://github.com/rtreharne/BIOS226/blob/main/week_5/BIOS226_Topic5_Supervised_Learning_Workshop.Rmd)
-- [`generate_tumor_dataset.R`](https://github.com/rtreharne/BIOS226/blob/main/week_5/scripts/generate_tumor_dataset.R)
-- [`model_workflow_helpers.R`](https://github.com/rtreharne/BIOS226/blob/main/week_5/scripts/model_workflow_helpers.R)
+- [`generate_tumor_dataset.R`](https://github.com/rtreharne/BIOS226/blob/main/week_5/workshop/Topic5/generate_tumor_dataset.R)
+- [`model_workflow_helpers.R`](https://github.com/rtreharne/BIOS226/blob/main/week_5/workshop/Topic5/model_workflow_helpers.R)
 
 In GitHub, click **Download raw file** (or right-click **Raw** and save) for each file.
 
